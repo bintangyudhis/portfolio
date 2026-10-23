@@ -33,6 +33,30 @@ const now = Date.now();
 
 export const seedProjects: Project[] = [
   {
+    id: "seed-dompetku",
+    title: "DompetKu — Personal Finance Web App",
+    description:
+      "Personal finance tracker: income and expense logging with quick shortcuts, per-category analytics, monthly budgets with warnings, recurring income, and CSV import/export. Also serves as the REST API and account server for its companion Flutter app.",
+    tech: ["Next.js", "TypeScript", "Prisma", "Supabase"],
+    githubUrl: "https://github.com/bintangyudhis/dompetku-web",
+    liveUrl: "https://dompetku.bintangyudhis.my.id",
+    featured: true,
+    year: "2026",
+    createdAt: now - 1,
+  },
+  {
+    id: "seed-pendekin",
+    title: "Pendekin — URL Shortener & Click Analytics",
+    description:
+      "URL shortener with custom slugs, click logging on every redirect, and an owner dashboard with per-link statistics and QR codes. Link creation is rate-limited and SSRF-protected.",
+    tech: ["Next.js", "TypeScript", "Prisma", "Supabase"],
+    githubUrl: "https://github.com/bintangyudhis/pendekin",
+    liveUrl: "https://pendekin-nine.vercel.app",
+    featured: true,
+    year: "2026",
+    createdAt: now - 2,
+  },
+  {
     id: "seed-saas-menu",
     title: "SaaS Digital Menu — Multi-Store",
     description:
@@ -41,7 +65,7 @@ export const seedProjects: Project[] = [
     githubUrl: "https://github.com/bintangyudhis/SaaS-Menu-Digital-Multi-Toko-Laravel-12",
     featured: true,
     year: "2026",
-    createdAt: now - 1,
+    createdAt: now - 3,
   },
   {
     id: "seed-laundry",
@@ -52,7 +76,7 @@ export const seedProjects: Project[] = [
     githubUrl: "https://github.com/bintangyudhis/Flutter-Frontend-LaundryApp",
     featured: true,
     year: "2026",
-    createdAt: now - 2,
+    createdAt: now - 4,
   },
   {
     id: "seed-studio",
@@ -64,7 +88,7 @@ export const seedProjects: Project[] = [
       "https://github.com/bintangyudhis/Website-Company-Profile-dan-Sistem-Reservasi-Studio-Foto",
     featured: true,
     year: "2026",
-    createdAt: now - 3,
+    createdAt: now - 5,
   },
   {
     id: "seed-tiket",
@@ -75,7 +99,7 @@ export const seedProjects: Project[] = [
     githubUrl: "https://github.com/bintangyudhis/Web-Kelola-Tiket",
     featured: false,
     year: "2025",
-    createdAt: now - 4,
+    createdAt: now - 6,
   },
   {
     id: "seed-kasir",
@@ -86,7 +110,7 @@ export const seedProjects: Project[] = [
     githubUrl: "https://github.com/bintangyudhis/Project-Kasir-Warung-Yamien-12-K",
     featured: false,
     year: "2026",
-    createdAt: now - 5,
+    createdAt: now - 7,
   },
   {
     id: "seed-evoting",
@@ -97,7 +121,7 @@ export const seedProjects: Project[] = [
     githubUrl: "https://github.com/bintangyudhis/Website-e-voting",
     featured: false,
     year: "2025",
-    createdAt: now - 6,
+    createdAt: now - 8,
   },
 ];
 
