@@ -76,6 +76,11 @@ const ui = {
     en: "Open to interesting projects, collaborations, or just a good tech conversation. Write through the form below, or straight to my email.",
     jp: "面白いプロジェクト、コラボレーション、技術についての雑談も歓迎します。下のフォームか、直接メールでご連絡ください。",
   },
+  contactEmailHint: {
+    id: "Klik alamatnya untuk langsung membuka aplikasi email kamu.",
+    en: "Click the address to open your email app right away.",
+    jp: "アドレスをクリックするとメールアプリが開きます。",
+  },
   formName: { id: "Nama", en: "Name", jp: "お名前" },
   formEmail: { id: "Email", en: "Email", jp: "メールアドレス" },
   formSubject: { id: "Subjek", en: "Subject", jp: "件名" },

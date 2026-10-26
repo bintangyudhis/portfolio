@@ -15,7 +15,6 @@ export default function Contact({
   profile: ProfileContent;
 }) {
   const channels = [
-    { label: "Email", value: profile.email, href: `mailto:${profile.email}` },
     { label: "GitHub", value: "github.com/bintangyudhis", href: profile.githubUrl },
     { label: "LinkedIn", value: "Bintang Yudhistira", href: profile.linkedinUrl },
     { label: "Instagram", value: "@yudhis_gaiden", href: profile.instagramUrl },
@@ -37,6 +36,21 @@ export default function Contact({
               <p className="mt-5 max-w-md leading-relaxed text-faded">
                 {t("contactIntro", locale)}
               </p>
+
+              <div className="mt-8">
+                <p className="font-mono text-xs tracking-[0.08em] text-faded uppercase">
+                  Email
+                </p>
+                <a
+                  href={`mailto:${profile.email}`}
+                  className="mt-1.5 block text-[clamp(1.3rem,3.4vw,1.75rem)] leading-snug font-extrabold tracking-tight break-all text-ink underline decoration-flame decoration-2 underline-offset-4 transition-colors hover:text-flame"
+                >
+                  {profile.email}
+                </a>
+                <p className="mt-2 text-sm text-faded">
+                  {t("contactEmailHint", locale)}
+                </p>
+              </div>
 
               <ul className="mt-9 divide-y divide-line">
                 {channels.map((c) => (
