@@ -23,7 +23,7 @@ export default function MobileMenu({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={label}
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-line bg-panel text-ink transition-colors hover:text-flame md:hidden"
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-line bg-panel text-ink transition-colors hover:text-flame min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10 md:hidden"
       >
         {open ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
       </button>

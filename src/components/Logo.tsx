@@ -1,0 +1,13 @@
+/**
+ * Brand mark: a geometric four-point star ("bintang" is Indonesian for
+ * star). The same artwork lives in public/logo.svg (standalone file) and
+ * src/app/icon.svg (favicon). Here it is inlined so the fill can follow
+ * the theme accent token through currentColor.
+ */
+export default function LogoMark({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="currentColor" className={className} aria-hidden>
+      <path d="M24 2.5c1.35 8.1 3.28 13.02 5.83 15.57C32.38 20.62 37.3 22.55 45.5 24c-8.2 1.45-13.12 3.38-15.67 5.93C27.28 32.48 25.35 37.4 24 45.5c-1.35-8.1-3.28-13.02-5.83-15.57C15.62 27.38 10.7 25.45 2.5 24c8.2-1.45 13.12-3.38 15.67-5.93C20.72 15.52 22.65 10.6 24 2.5Z" />
+    </svg>
+  );
+}

@@ -33,7 +33,7 @@ export default function LangToggle({
 
   return (
     <div
-      className="flex items-center gap-0.5 rounded-full border border-line bg-panel p-1 font-mono text-xs"
+      className="flex items-center gap-0.5 rounded-full border border-line bg-panel p-0.5 font-mono text-[10px] min-[360px]:text-[11px] sm:p-1 sm:text-xs"
       role="group"
       aria-label={ariaLabel}
     >
@@ -45,8 +45,8 @@ export default function LangToggle({
           aria-pressed={l === locale}
           className={
             l === locale
-              ? "rounded-full bg-flame px-2 py-1 font-semibold text-on-accent sm:px-2.5"
-              : "rounded-full px-2 py-1 text-faded transition-colors hover:text-ink sm:px-2.5"
+              ? "rounded-full bg-flame px-1 py-0.5 font-semibold text-on-accent min-[360px]:px-1.5 sm:px-2.5 sm:py-1"
+              : "rounded-full px-1 py-0.5 text-faded transition-colors hover:text-ink min-[360px]:px-1.5 sm:px-2.5 sm:py-1"
           }
         >
           {LABELS[l]}

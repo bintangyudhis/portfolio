@@ -22,7 +22,7 @@ export default function ThemeToggle({ ariaLabel }: { ariaLabel: string }) {
       onClick={toggle}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-line bg-panel text-faded transition-colors hover:text-flame"
+      className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-line bg-panel text-faded transition-colors hover:text-flame min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10"
     >
       {/* Moon, shown in light mode */}
       <svg

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import LangToggle from "./LangToggle";
+import LogoMark from "./Logo";
 import MobileMenu from "./MobileMenu";
 import ThemeToggle from "./ThemeToggle";
 import { GithubIcon } from "./icons";
@@ -15,9 +16,10 @@ function initials(name: string): string {
 }
 
 /**
- * Sticky translucent header: round avatar + lowercase wordmark on the
- * left; GitHub link, language control, theme toggle, and (on mobile) a
- * hamburger on the right. Desktop nav links sit in the middle.
+ * Sticky translucent header: round avatar, logo mark, and the full-name
+ * wordmark on the left; GitHub link, language control, theme toggle,
+ * and (on mobile) a hamburger on the right. Desktop nav links sit in
+ * the middle.
  */
 export default function SiteHeader({
   locale,
@@ -44,27 +46,34 @@ export default function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur-md">
-      <div className="relative mx-auto w-full max-w-6xl px-4 md:px-8">
-        <div className="flex items-center gap-x-2 py-3 sm:gap-x-3">
-          <Link href="#top" className="flex shrink-0 items-center gap-2.5">
+      <div className="relative mx-auto w-full max-w-6xl px-3 min-[400px]:px-4 md:px-8">
+        <div className="flex items-center gap-x-1.5 py-3 sm:gap-x-3">
+          <Link
+            href="#top"
+            aria-label={name}
+            className="flex shrink-0 items-center gap-1.5 min-[360px]:gap-2 sm:gap-2.5"
+          >
             {photoUrl ? (
               <Image
                 src={photoUrl}
                 alt=""
                 width={72}
                 height={72}
-                className="h-9 w-9 shrink-0 rounded-full object-cover"
+                className="h-8 w-8 shrink-0 rounded-full object-cover min-[360px]:h-9 min-[360px]:w-9"
               />
             ) : (
               <span
                 aria-hidden
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-flame text-xs font-extrabold text-on-accent"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-flame text-[11px] font-extrabold text-on-accent min-[360px]:h-9 min-[360px]:w-9 min-[360px]:text-xs"
               >
                 {initials(name)}
               </span>
             )}
-            <span className="hidden text-xl font-extrabold tracking-tight whitespace-nowrap lowercase min-[360px]:block">
-              yudhis
+            <span aria-hidden className="shrink-0 text-flame">
+              <LogoMark className="h-4 w-4 min-[360px]:h-5 min-[360px]:w-5" />
+            </span>
+            <span className="text-[10px] font-extrabold tracking-tight whitespace-nowrap min-[360px]:text-[13px] sm:text-lg lg:text-xl">
+              {name}
             </span>
           </Link>
 
@@ -79,7 +88,7 @@ export default function SiteHeader({
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-x-2">
+          <div className="ml-auto flex shrink-0 items-center gap-x-1.5 sm:gap-x-2">
             <a
               href={githubUrl}
               target="_blank"
