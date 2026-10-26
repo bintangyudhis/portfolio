@@ -44,9 +44,9 @@ export default function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur-md">
-      <div className="relative mx-auto w-full max-w-6xl px-5 md:px-8">
-        <div className="flex items-center gap-x-3 py-3">
-          <Link href="#top" className="flex min-w-0 items-center gap-2.5">
+      <div className="relative mx-auto w-full max-w-6xl px-4 md:px-8">
+        <div className="flex items-center gap-x-2 py-3 sm:gap-x-3">
+          <Link href="#top" className="flex shrink-0 items-center gap-2.5">
             {photoUrl ? (
               <Image
                 src={photoUrl}
@@ -63,7 +63,7 @@ export default function SiteHeader({
                 {initials(name)}
               </span>
             )}
-            <span className="text-xl font-extrabold tracking-tight lowercase">
+            <span className="hidden text-xl font-extrabold tracking-tight whitespace-nowrap lowercase min-[360px]:block">
               yudhis
             </span>
           </Link>
@@ -85,7 +85,7 @@ export default function SiteHeader({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
-              className="grid h-10 w-10 shrink-0 place-items-center text-faded transition-colors hover:text-ink"
+              className="hidden h-10 w-10 shrink-0 place-items-center text-faded transition-colors hover:text-ink sm:grid"
             >
               <GithubIcon className="h-[22px] w-[22px]" />
             </a>

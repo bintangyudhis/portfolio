@@ -45,8 +45,8 @@ export default function LangToggle({
           aria-pressed={l === locale}
           className={
             l === locale
-              ? "rounded-full bg-flame px-2.5 py-1 font-semibold text-on-accent"
-              : "rounded-full px-2.5 py-1 text-faded transition-colors hover:text-ink"
+              ? "rounded-full bg-flame px-2 py-1 font-semibold text-on-accent sm:px-2.5"
+              : "rounded-full px-2 py-1 text-faded transition-colors hover:text-ink sm:px-2.5"
           }
         >
           {LABELS[l]}
