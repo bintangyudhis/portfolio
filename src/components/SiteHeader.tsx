@@ -37,6 +37,7 @@ export default function SiteHeader({
     { href: "#about", label: t("navAbout", locale) },
     { href: "#experience", label: t("navExperience", locale) },
     { href: "#projects", label: t("navProjects", locale) },
+    { href: "#publications", label: t("navPublications", locale) },
     { href: "#skills", label: t("navSkills", locale) },
     { href: "#contact", label: t("navContact", locale) },
   ];

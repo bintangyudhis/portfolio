@@ -20,6 +20,7 @@ const ui = {
   navAbout: { id: "Tentang", en: "About", jp: "私について" },
   navExperience: { id: "Pengalaman", en: "Experience", jp: "経歴" },
   navProjects: { id: "Proyek", en: "Projects", jp: "プロジェクト" },
+  navPublications: { id: "Publikasi", en: "Publications", jp: "出版物" },
   navSkills: { id: "Keahlian", en: "Skills", jp: "スキル" },
   navContact: { id: "Kontak", en: "Contact", jp: "お問い合わせ" },
   languageLabel: { id: "Bahasa", en: "Language", jp: "言語" },
@@ -197,6 +198,18 @@ const ui = {
     en: "GitHub Statistics",
     jp: "GitHubの統計",
   },
+  githubGraphTitle: {
+    id: "Grafik Kontribusi GitHub",
+    en: "GitHub Contributions Graph",
+    jp: "GitHubコントリビューショングラフ",
+  },
+  graphContributions: {
+    id: "kontribusi",
+    en: "contributions",
+    jp: "コントリビューション",
+  },
+  graphLess: { id: "Sedikit", en: "Less", jp: "少" },
+  graphMore: { id: "Banyak", en: "More", jp: "多" },
   statRepos: {
     id: "repositori publik",
     en: "public repositories",

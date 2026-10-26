@@ -158,3 +158,59 @@ export async function getGithubData(): Promise<GithubData> {
     publicRepos: fromUser.publicRepos ?? repos.length,
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Contribution graph (per-day counts per calendar year)               */
+/* ------------------------------------------------------------------ */
+
+export interface ContributionDay {
+  date: string;
+  count: number;
+  level: number;
+}
+
+export interface ContributionYear {
+  year: number;
+  total: number;
+  days: ContributionDay[];
+}
+
+interface RawContributions {
+  total?: Record<string, number>;
+  contributions?: { date: string; count: number; level: number }[];
+}
+
+/**
+ * Daily contribution counts from the public contributions API (the same
+ * data GitHub's own profile graph shows). Three calendar years: the
+ * current one plus the two before it. Any failure returns null and the
+ * graph section hides itself — numbers are never invented.
+ */
+export async function getContributions(): Promise<ContributionYear[] | null> {
+  const now = new Date().getFullYear();
+  const years = [now, now - 1, now - 2];
+  const results = await Promise.all(
+    years.map(async (year): Promise<ContributionYear | null> => {
+      try {
+        const res = await fetch(
+          `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=${year}`,
+          { next: { revalidate: 3600 } }
+        );
+        if (!res.ok) return null;
+        const data = (await res.json()) as RawContributions;
+        const days = (data.contributions ?? []).filter(
+          (d) => typeof d.count === "number" && typeof d.date === "string"
+        );
+        if (days.length === 0) return null;
+        const total =
+          data.total?.[String(year)] ??
+          days.reduce((sum, d) => sum + d.count, 0);
+        return { year, total, days };
+      } catch {
+        return null;
+      }
+    })
+  );
+  const ok = results.filter((r): r is ContributionYear => r !== null);
+  return ok.length > 0 ? ok : null;
+}

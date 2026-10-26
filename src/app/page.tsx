@@ -7,18 +7,20 @@ import Projects from "@/components/Projects";
 import GithubProjects from "@/components/GithubProjects";
 import Skills from "@/components/Skills";
 import GithubStats from "@/components/GithubStats";
+import GithubGraph from "@/components/GithubGraph";
 import Contact from "@/components/Contact";
 import { getPortfolioContent } from "@/lib/db";
-import { getGithubData } from "@/lib/github";
+import { getGithubData, getContributions } from "@/lib/github";
 import { getLocale } from "@/lib/lang";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const locale = await getLocale();
-  const [content, github] = await Promise.all([
+  const [content, github, contributions] = await Promise.all([
     getPortfolioContent(),
     getGithubData(),
+    getContributions(),
   ]);
 
   return (
@@ -49,6 +51,7 @@ export default async function Home() {
         data={github}
         githubUrl={content.profile.githubUrl}
       />
+      {contributions && <GithubGraph locale={locale} years={contributions} />}
       <Contact locale={locale} profile={content.profile} />
     </>
   );
