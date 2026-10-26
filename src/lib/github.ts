@@ -1,8 +1,11 @@
 // Public GitHub data for the "all projects" section and the statistics
-// line. Server-side only, no credentials — the public REST API is enough.
-// Responses ride the Next.js Data Cache (revalidate 3600), so the public
-// 60 req/h unauthenticated budget is never a problem in practice.
-// Any failure returns nulls and the UI falls back / omits — never invents.
+// section. Server-side only, no credentials — the public REST API and
+// the Search API are enough. Responses ride the Next.js Data Cache
+// (revalidate 300), so the numbers feel current while the public
+// 60 req/h unauthenticated budget stays safe.
+// Any failure returns nulls and the UI omits that figure — never invents.
+// Note: the Search API is used for issues/PRs only; commit search is
+// deliberately avoided because its index fluctuates wildly.
 
 const USERNAME = "bintangyudhis";
 const PROFILE_REPO = "bintangyudhis";
@@ -22,8 +25,19 @@ export interface GithubData {
   repos: GithubRepo[] | null;
   /** Sum of stars over every fetched repo (null when unknown). */
   totalStars: number | null;
+  /** Sum of forks over every fetched repo (null when unknown). */
+  totalForks: number | null;
   publicRepos: number | null;
   followers: number | null;
+  following: number | null;
+  /** Calendar year the account was created (null when unknown). */
+  memberSince: number | null;
+  /** Up to three most-used repo languages, most frequent first. */
+  topLanguages: string[] | null;
+  /** Total pull requests authored (Search API total_count). */
+  pullRequests: number | null;
+  /** Total issues authored (Search API total_count). */
+  issues: number | null;
 }
 
 interface RawRepo {
@@ -32,6 +46,7 @@ interface RawRepo {
   description: string | null;
   language: string | null;
   stargazers_count: number;
+  forks_count: number;
   fork: boolean;
   pushed_at: string;
   updated_at: string;
@@ -40,6 +55,12 @@ interface RawRepo {
 interface RawUser {
   public_repos: number;
   followers: number;
+  following: number;
+  created_at: string;
+}
+
+interface RawSearchTotal {
+  total_count: number;
 }
 
 async function gh<T>(path: string): Promise<T | null> {
@@ -49,7 +70,7 @@ async function gh<T>(path: string): Promise<T | null> {
         Accept: "application/vnd.github+json",
         "User-Agent": "portfolio-bintang",
       },
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -58,22 +79,60 @@ async function gh<T>(path: string): Promise<T | null> {
   }
 }
 
+function searchTotal(type: "pr" | "issue"): Promise<RawSearchTotal | null> {
+  const q = encodeURIComponent(`author:${USERNAME} type:${type}`);
+  return gh<RawSearchTotal>(`/search/issues?q=${q}`);
+}
+
 export async function getGithubData(): Promise<GithubData> {
-  const [rawRepos, user] = await Promise.all([
+  const [rawRepos, user, prSearch, issueSearch] = await Promise.all([
     gh<RawRepo[]>(`/users/${USERNAME}/repos?per_page=100&sort=pushed`),
     gh<RawUser>(`/users/${USERNAME}`),
+    searchTotal("pr"),
+    searchTotal("issue"),
   ]);
+
+  const pullRequests =
+    typeof prSearch?.total_count === "number" ? prSearch.total_count : null;
+  const issues =
+    typeof issueSearch?.total_count === "number" ? issueSearch.total_count : null;
+
+  const memberYear = user?.created_at
+    ? new Date(user.created_at).getUTCFullYear()
+    : NaN;
+
+  const fromUser = {
+    publicRepos: user?.public_repos ?? null,
+    followers: user?.followers ?? null,
+    following: user?.following ?? null,
+    memberSince: Number.isFinite(memberYear) ? memberYear : null,
+  };
 
   if (!rawRepos) {
     return {
       repos: null,
       totalStars: null,
-      publicRepos: user?.public_repos ?? null,
-      followers: user?.followers ?? null,
+      totalForks: null,
+      topLanguages: null,
+      pullRequests,
+      issues,
+      ...fromUser,
     };
   }
 
   const totalStars = rawRepos.reduce((sum, r) => sum + r.stargazers_count, 0);
+  const totalForks = rawRepos.reduce((sum, r) => sum + (r.forks_count ?? 0), 0);
+
+  const languageCounts = new Map<string, number>();
+  for (const r of rawRepos) {
+    if (r.language) {
+      languageCounts.set(r.language, (languageCounts.get(r.language) ?? 0) + 1);
+    }
+  }
+  const topLanguages = [...languageCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 3)
+    .map(([language]) => language);
 
   const repos = rawRepos
     .filter((r) => r.name !== PROFILE_REPO)
@@ -91,7 +150,11 @@ export async function getGithubData(): Promise<GithubData> {
   return {
     repos,
     totalStars,
-    publicRepos: user?.public_repos ?? repos.length,
-    followers: user?.followers ?? null,
+    totalForks,
+    topLanguages,
+    pullRequests,
+    issues,
+    ...fromUser,
+    publicRepos: fromUser.publicRepos ?? repos.length,
   };
 }

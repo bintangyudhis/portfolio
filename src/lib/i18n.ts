@@ -208,6 +208,23 @@ const ui = {
     jp: "全リポジトリのスター",
   },
   statFollowers: { id: "pengikut", en: "followers", jp: "フォロワー" },
+  statReposLabel: { id: "Repositori publik", en: "Public repositories", jp: "公開リポジトリ" },
+  statStarsLabel: { id: "Bintang", en: "Stars", jp: "スター" },
+  statForksLabel: { id: "Fork", en: "Forks", jp: "フォーク" },
+  statFollowersLabel: { id: "Pengikut", en: "Followers", jp: "フォロワー" },
+  statFollowingLabel: { id: "Mengikuti", en: "Following", jp: "フォロー中" },
+  statPullRequestsLabel: { id: "Pull Request", en: "Pull Requests", jp: "プルリクエスト" },
+  statIssuesLabel: { id: "Issue", en: "Issues", jp: "イシュー" },
+  statTopLanguages: { id: "Bahasa utama", en: "Top languages", jp: "主な言語" },
+  statMemberSince: { id: "di GitHub sejak", en: "on GitHub since", jp: "GitHub登録" },
+  statsUpdatedNote: {
+    id: "Angka diperbarui otomatis dari GitHub API.",
+    en: "Figures update automatically from the GitHub API.",
+    jp: "数値はGitHub APIから自動で更新されます。",
+  },
+
+  publicationsLabel: { id: "Publikasi", en: "Publications", jp: "出版物" },
+  publicationsTitle: { id: "Publikasi", en: "Publications", jp: "出版物" },
 
   technicalLabel: { id: "Teknis", en: "Technical", jp: "技術" },
 
