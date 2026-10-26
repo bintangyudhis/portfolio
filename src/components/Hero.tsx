@@ -42,7 +42,7 @@ export default function Hero({
           <h1 className="hero-in mt-3 text-[clamp(2.9rem,9vw,5.6rem)] leading-[0.98] font-black tracking-[-0.02em] wrap-anywhere">
             <span className="block text-ink">{head}</span>
             {tail && (
-              <span className="block text-faded">
+              <span className="block text-ink">
                 {tail}
                 <span
                   aria-hidden
