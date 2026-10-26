@@ -25,6 +25,7 @@ import {
   type ProjectItem,
   type SkillGroup,
   type CertificationItem,
+  type PublicationItem,
   type ProfileContent,
 } from "./content";
 import { getAnonClient, getServiceClient } from "./supabase";
@@ -118,12 +119,24 @@ function mapCertifications(rows: Row[]): CertificationItem[] {
   }));
 }
 
+function mapPublications(rows: Row[]): PublicationItem[] {
+  return rows.map((r) => ({
+    slug: r.slug,
+    title: r.title,
+    venue: r.venue ?? "",
+    year: typeof r.year === "number" ? r.year : undefined,
+    url: r.url ?? undefined,
+    sort: r.sort,
+  }));
+}
+
 function assemble(
   profileRow: Row | null,
   expRows: Row[],
   projRows: Row[],
   skillRows: Row[],
-  certRows: Row[]
+  certRows: Row[],
+  pubRows: Row[] | null
 ): PortfolioContent | null {
   if (!profileRow || projRows.length === 0) return null;
   return {
@@ -132,6 +145,10 @@ function assemble(
     projects: mapProjects(projRows),
     skillGroups: mapSkillGroups(skillRows),
     certifications: mapCertifications(certRows),
+    // Publications live in migration 0004 — until that table exists the
+    // curated list stands in, so the section never shows up empty.
+    publications:
+      pubRows === null ? fallbackContent.publications : mapPublications(pubRows),
   };
 }
 
@@ -161,12 +178,23 @@ async function fetchFromRest(): Promise<PortfolioContent | null> {
       .order("sort", { ascending: true });
     if (!certRes.error && certRes.data) certRows = certRes.data as Row[];
 
+    // Publications live in migration 0004 — best effort like the above;
+    // null (not []) marks "table missing" so assemble() uses the
+    // curated fallback list instead of an empty section.
+    let pubRows: Row[] | null = null;
+    const pubRes = await sb
+      .from("portfolio_publications")
+      .select("*")
+      .order("sort", { ascending: true });
+    if (!pubRes.error && pubRes.data) pubRows = pubRes.data as Row[];
+
     return assemble(
       profileRes.data as Row | null,
       (expRes.data ?? []) as Row[],
       (projRes.data ?? []) as Row[],
       (skillRes.data ?? []) as Row[],
-      certRows
+      certRows,
+      pubRows
     );
   } catch {
     return null;
@@ -214,12 +242,23 @@ async function fetchFromPg(): Promise<PortfolioContent | null> {
       // Table arrives with migration 0002 — older databases simply have none.
     }
 
+    let pubRows: Row[] | null = null;
+    try {
+      const pubRes = await p.query(
+        "select * from public.portfolio_publications order by sort asc"
+      );
+      pubRows = pubRes.rows as Row[];
+    } catch {
+      // Table arrives with migration 0004 — null keeps the curated list.
+    }
+
     return assemble(
       (profileRes.rows[0] as Row) ?? null,
       expRes.rows as Row[],
       projRes.rows as Row[],
       skillRes.rows as Row[],
-      certRows
+      certRows,
+      pubRows
     );
   } catch {
     // Table missing / DB unreachable → caller falls back to curated content.

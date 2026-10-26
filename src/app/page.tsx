@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Experience from "@/components/Experience";
 import Education from "@/components/Education";
+import Publications from "@/components/Publications";
 import Projects from "@/components/Projects";
 import GithubProjects from "@/components/GithubProjects";
 import Skills from "@/components/Skills";
@@ -31,6 +32,7 @@ export default async function Home() {
         certifications={content.certifications}
         languages={content.profile.languages}
       />
+      <Publications locale={locale} items={content.publications} />
       <Projects
         locale={locale}
         projects={content.projects}

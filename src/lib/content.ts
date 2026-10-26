@@ -92,12 +92,23 @@ export interface CertificationItem {
   sort: number;
 }
 
+/** A journal or conference publication — its own category, not experience. */
+export interface PublicationItem {
+  slug: string;
+  title: string;
+  venue: string;
+  year?: number;
+  url?: string;
+  sort: number;
+}
+
 export interface PortfolioContent {
   profile: ProfileContent;
   experiences: ExperienceItem[];
   projects: ProjectItem[];
   skillGroups: SkillGroup[];
   certifications: CertificationItem[];
+  publications: PublicationItem[];
 }
 
 export const fallbackContent: PortfolioContent = {
@@ -572,6 +583,32 @@ export const fallbackContent: PortfolioContent = {
       issuer: "Cognitive Class",
       issued: { id: "Mar 2026", en: "Mar 2026", jp: "2026年3月" },
       credentialId: "962a867d93d245cfb7e4d88bc1f6f0e4",
+      sort: 3,
+    },
+  ],
+
+  publications: [
+    {
+      slug: "batik-cnn-vit-centive",
+      title:
+        "Comparative Study of CNN, Vision Transformer, and Hybrid CNN-ViT Models for Indonesian Batik Pattern Classification",
+      venue: "CENTIVE (Conference on Electrical Network, Technology, and Innovation)",
+      year: 2025,
+      sort: 1,
+    },
+    {
+      slug: "jemuran-iot-teknologika",
+      title:
+        "Design and Build of an Internet of Things (IoT) Based Automatic Clothes Drying Rack Prototype with a Raindrop Sensor and Light Dependent Resistor (LDR) at Leon Laundry",
+      venue: "Jurnal Teknologika, Vol. 15, No. 2",
+      year: 2025,
+      sort: 2,
+    },
+    {
+      slug: "sentimen-mytelu-svm",
+      title:
+        "Sentiment Analysis of the My TelU Application Using the Support Vector Machine (SVM) Algorithm",
+      venue: "",
       sort: 3,
     },
   ],

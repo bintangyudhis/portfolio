@@ -14,6 +14,7 @@ import type {
   ExperienceItem,
   ProfileContent,
   ProjectItem,
+  PublicationItem,
   SkillGroup,
 } from "./content";
 
@@ -166,6 +167,32 @@ export function certificationToRow(c: CertificationItem): Row {
     issued: c.issued,
     credential_id: c.credentialId ?? null,
     sort: c.sort,
+  };
+}
+
+// Publications are keyed by their `slug` column (migration 0004 gives the
+// table a bigint identity `id` of its own), unlike the older collections
+// whose text `id` is the slug.
+export function rowToPublication(r: Row): PublicationItem {
+  return {
+    slug: r.slug,
+    title: r.title,
+    venue: r.venue ?? "",
+    year: typeof r.year === "number" ? r.year : undefined,
+    url: r.url ?? undefined,
+    sort: r.sort,
+  };
+}
+
+export function publicationToRow(p: PublicationItem): Row {
+  return {
+    slug: p.slug,
+    title: p.title,
+    venue: p.venue,
+    year: p.year ?? null,
+    url: p.url ?? null,
+    sort: p.sort,
+    updated_at: new Date().toISOString(),
   };
 }
 

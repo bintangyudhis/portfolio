@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/admin/proyek", label: "Proyek" },
   { href: "/admin/keahlian", label: "Keahlian" },
   { href: "/admin/sertifikasi", label: "Sertifikasi" },
+  { href: "/admin/publikasi", label: "Publikasi" },
   { href: "/admin/pesan", label: "Pesan Masuk" },
 ];
 

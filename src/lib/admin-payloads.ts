@@ -17,6 +17,7 @@ import type {
   CertificationItem,
   ExperienceItem,
   ProjectItem,
+  PublicationItem,
   SkillGroup,
 } from "./content";
 
@@ -71,6 +72,25 @@ export function parseSkillGroup(body: unknown, slugOverride?: string): SkillGrou
   const sort = parseSort(body.sort) ?? 0;
   if (!slug || !name || !blurb || !skills) return null;
   return { slug, name, blurb, skills, sort };
+}
+
+export function parsePublication(body: unknown, slugOverride?: string): PublicationItem | null {
+  if (!isObj(body)) return null;
+  const slug = parseSlug(body, slugOverride);
+  const title = reqString(body.title, 500);
+  const sort = parseSort(body.sort) ?? 0;
+  if (!slug || !title) return null;
+  // Venue and year are optional: a publication can be listed before its
+  // venue line is final (venue then stays an empty string, as seeded).
+  const year = parseSort(body.year);
+  return {
+    slug,
+    title,
+    venue: optString(body.venue, 300) ?? "",
+    year: year === null ? undefined : year,
+    url: optString(body.url, 1000) ?? undefined,
+    sort,
+  };
 }
 
 export function parseCertification(body: unknown, slugOverride?: string): CertificationItem | null {
