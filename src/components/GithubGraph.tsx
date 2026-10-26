@@ -1,102 +1,169 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ArrowUpRightIcon } from "./icons";
 import { t, type Locale } from "@/lib/i18n";
-import type { ContributionYear } from "@/lib/github";
+import type { ContributionYear, ContributionDay } from "@/lib/github";
 
 /**
- * GitHub contributions graph in the reference site's pattern: a card
- * with year tabs and a week-by-week heatmap of daily contribution
- * counts, colored on the theme accent. Data comes from the server
- * fetch in lib/github; this component only renders it.
+ * Contribution history card in the reference site's pattern: a title
+ * with the year's total, a year dropdown, and a heatmap with month
+ * labels across the top and weekday labels (Mon, Wed, Fri) down the
+ * left, over a five-step legend. Data is fetched server-side in
+ * lib/github; this component only renders and switches years.
  */
 
 const LEVEL_CLS = [
-  "bg-[#E9E9F4] dark:bg-[#1C1440]",
+  "bg-[#EDEDF6] dark:bg-[#1C1440]",
   "bg-[#C5C5EF] dark:bg-[#37267A]",
   "bg-[#9B9BE7] dark:bg-[#5B34C4]",
   "bg-[#7070DD] dark:bg-[#8146F0]",
   "bg-flame",
 ];
 
+const CELL = "h-2.5 w-2.5 rounded-[2px]";
+
+type Cell = ContributionDay | null;
+
 export default function GithubGraph({
   locale,
   years,
+  githubUrl,
 }: {
   locale: Locale;
   years: ContributionYear[];
+  githubUrl: string;
 }) {
   const [selected, setSelected] = useState(0);
   const active = years[selected] ?? years[0];
 
-  const cells = useMemo(() => {
-    if (!active) return [];
+  const { weeks, monthLabels } = useMemo(() => {
+    if (!active) return { weeks: [] as Cell[][], monthLabels: [] as string[] };
     const today = new Date().toISOString().slice(0, 10);
     const days = active.days.filter((d) => d.date <= today);
-    if (days.length === 0) return [];
+    if (days.length === 0) return { weeks: [], monthLabels: [] };
+
     const pad = new Date(days[0].date + "T00:00:00Z").getUTCDay();
-    return [
+    const cells: Cell[] = [
       ...Array.from({ length: pad }, () => null),
       ...days,
-    ] as Array<null | (typeof days)[number]>;
-  }, [active]);
+    ];
+    while (cells.length % 7 !== 0) cells.push(null);
+
+    const cols: Cell[][] = [];
+    for (let i = 0; i < cells.length; i += 7) cols.push(cells.slice(i, i + 7));
+
+    const monthFmt = new Intl.DateTimeFormat(
+      locale === "id" ? "id-ID" : locale === "jp" ? "ja-JP" : "en-US",
+      { month: "short", timeZone: "UTC" }
+    );
+    const labels: string[] = [];
+    let lastMonth = -1;
+    for (const col of cols) {
+      const first = col.find((c) => c !== null);
+      if (!first) {
+        labels.push("");
+        continue;
+      }
+      const m = new Date(first.date + "T00:00:00Z").getUTCMonth();
+      if (m !== lastMonth) {
+        labels.push(monthFmt.format(new Date(first.date + "T00:00:00Z")));
+        lastMonth = m;
+      } else {
+        labels.push("");
+      }
+    }
+    return { weeks: cols, monthLabels: labels };
+  }, [active, locale]);
 
   if (!active || years.length === 0) return null;
 
+  const dayLabels =
+    locale === "jp" ? ["", "月", "", "水", "", "金", ""] : ["", "Mon", "", "Wed", "", "Fri", ""];
+
   return (
     <section>
-      <div className="mx-auto w-full max-w-6xl px-5 pb-14 md:px-8 md:pb-20">
+      <div className="mx-auto w-full max-w-6xl px-5 pt-6 pb-14 md:px-8 md:pb-20">
         <div className="rounded-3xl border border-line bg-panel p-6 shadow-card md:p-8">
-          <div className="flex flex-wrap items-center gap-4">
-            <p className="font-mono text-xs font-medium tracking-[0.18em] text-flame uppercase">
-              {t("githubGraphTitle", locale)}
-            </p>
-            <div className="ml-auto flex gap-2">
-              {years.map((y, i) => (
-                <button
-                  key={y.year}
-                  type="button"
-                  onClick={() => setSelected(i)}
-                  className={`rounded-full px-3.5 py-1.5 font-mono text-xs font-medium transition-colors ${
-                    i === selected
-                      ? "bg-flame text-on-accent"
-                      : "border border-line text-faded hover:border-flame hover:text-flame"
-                  }`}
-                >
-                  {y.year}
-                </button>
-              ))}
+          <div className="flex flex-wrap items-start gap-4">
+            <div>
+              <p className="text-lg font-extrabold tracking-tight text-ink">
+                {t("graphHistoryTitle", locale)}
+              </p>
+              <p className="mt-0.5 text-sm text-faded">
+                {active.total} {t("graphContributions", locale)} · {active.year}
+              </p>
             </div>
+            <select
+              aria-label={t("graphHistoryTitle", locale)}
+              value={selected}
+              onChange={(e) => setSelected(Number(e.target.value))}
+              className="ml-auto rounded-lg border border-line bg-paper px-3 py-2 font-mono text-sm text-ink focus:border-flame focus:outline-none"
+            >
+              {years.map((y, i) => (
+                <option key={y.year} value={i}>
+                  {y.year}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="mt-6 overflow-x-auto pb-1">
-            <div className="grid w-max grid-flow-col grid-rows-7 gap-[3px]">
-              {cells.map((d, i) =>
-                d === null ? (
-                  <span key={`pad-${i}`} className="h-2.5 w-2.5" />
-                ) : (
+            <div className="flex w-max gap-2">
+              <div className="flex flex-col gap-[3px] pt-[18px]">
+                {dayLabels.map((d, i) => (
                   <span
-                    key={d.date}
-                    title={`${d.date}: ${d.count}`}
-                    className={`h-2.5 w-2.5 rounded-[2px] ${LEVEL_CLS[Math.min(4, Math.max(0, d.level))]}`}
-                  />
-                )
-              )}
+                    key={i}
+                    className="flex h-2.5 items-center text-[10px] leading-none text-faded"
+                  >
+                    {d}
+                  </span>
+                ))}
+              </div>
+              <div>
+                <div className="mb-1.5 grid grid-flow-col gap-[3px]">
+                  {monthLabels.map((m, i) => (
+                    <span key={i} className="w-2.5 text-[10px] whitespace-nowrap text-faded">
+                      {m}
+                    </span>
+                  ))}
+                </div>
+                <div className="grid grid-flow-col grid-rows-7 gap-[3px]">
+                  {weeks.flatMap((col, ci) =>
+                    col.map((d, ri) =>
+                      d === null ? (
+                        <span key={`${ci}-${ri}`} className={CELL} />
+                      ) : (
+                        <span
+                          key={d.date}
+                          title={`${d.date}: ${d.count}`}
+                          className={`${CELL} ${LEVEL_CLS[Math.min(4, Math.max(0, d.level))]}`}
+                        />
+                      )
+                    )
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2">
-            <p className="text-sm text-faded">
-              <span className="font-bold text-ink tabular-nums">{active.total}</span>{" "}
-              {t("graphContributions", locale)} · {active.year}
-            </p>
-            <p className="ml-auto flex items-center gap-1.5 text-xs text-faded">
+          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-line pt-4">
+            <p className="flex items-center gap-1.5 text-xs text-faded">
               {t("graphLess", locale)}
               {LEVEL_CLS.map((cls) => (
-                <span key={cls} className={`h-2.5 w-2.5 rounded-[2px] ${cls}`} />
+                <span key={cls} className={`${CELL} ${cls}`} />
               ))}
               {t("graphMore", locale)}
             </p>
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-faded transition-colors hover:text-flame"
+            >
+              GitHub @bintangyudhis
+              <ArrowUpRightIcon className="h-3.5 w-3.5" />
+            </a>
           </div>
         </div>
       </div>

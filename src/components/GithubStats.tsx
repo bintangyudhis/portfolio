@@ -1,82 +1,102 @@
+import type { ReactNode } from "react";
 import SectionHead from "./SectionHead";
-import { GithubIcon } from "./icons";
 import { t, type Locale } from "@/lib/i18n";
-import type { GithubData } from "@/lib/github";
+import type { GithubData, ContributionYear } from "@/lib/github";
 
 /**
- * GitHub statistics as an editorial grid of real numbers, computed from
- * the same fetch as the project list. A number that could not be fetched
- * is omitted, never estimated. If nothing is known, the section
- * disappears.
+ * GitHub statistics in the reference site's layout: a row of cards,
+ * each with an icon in a lavender circle, a big number, and a label.
+ * Numbers come from the live GitHub fetch; a figure that could not be
+ * fetched drops its card instead of guessing.
  */
+
+const iconCls = "h-5 w-5";
+
+const ICONS: Record<string, ReactNode> = {
+  contributions: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={iconCls} aria-hidden>
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  ),
+  repos: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={iconCls} aria-hidden>
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    </svg>
+  ),
+  stars: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={iconCls} aria-hidden>
+      <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+    </svg>
+  ),
+  followers: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={iconCls} aria-hidden>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+  following: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={iconCls} aria-hidden>
+      <path d="M2 21a8 8 0 0 1 13.292-6.062" />
+      <circle cx="10" cy="8" r="5" />
+      <path d="M22 19h-6" />
+      <path d="M19 16v6" />
+    </svg>
+  ),
+};
+
 export default function GithubStats({
   locale,
   data,
-  githubUrl,
+  contributions,
 }: {
   locale: Locale;
   data: GithubData;
-  githubUrl: string;
+  contributions: ContributionYear[] | null;
 }) {
-  const stats: { value: number; label: string }[] = [];
+  const totalContributions =
+    contributions && contributions.length > 0
+      ? contributions.reduce((sum, y) => sum + y.total, 0)
+      : null;
+
+  const cards: { icon: ReactNode; value: number; label: string }[] = [];
+  if (totalContributions !== null)
+    cards.push({ icon: ICONS.contributions, value: totalContributions, label: t("statCardContributions", locale) });
   if (data.publicRepos !== null)
-    stats.push({ value: data.publicRepos, label: t("statReposLabel", locale) });
+    cards.push({ icon: ICONS.repos, value: data.publicRepos, label: t("statCardRepos", locale) });
   if (data.totalStars !== null)
-    stats.push({ value: data.totalStars, label: t("statStarsLabel", locale) });
-  if (data.totalForks !== null)
-    stats.push({ value: data.totalForks, label: t("statForksLabel", locale) });
+    cards.push({ icon: ICONS.stars, value: data.totalStars, label: t("statCardStars", locale) });
   if (data.followers !== null)
-    stats.push({ value: data.followers, label: t("statFollowersLabel", locale) });
+    cards.push({ icon: ICONS.followers, value: data.followers, label: t("statCardFollowers", locale) });
   if (data.following !== null)
-    stats.push({ value: data.following, label: t("statFollowingLabel", locale) });
-  if (data.pullRequests !== null)
-    stats.push({ value: data.pullRequests, label: t("statPullRequestsLabel", locale) });
-  if (data.issues !== null)
-    stats.push({ value: data.issues, label: t("statIssuesLabel", locale) });
+    cards.push({ icon: ICONS.following, value: data.following, label: t("statCardFollowing", locale) });
 
-  if (stats.length === 0) return null;
-
-  const metaParts: string[] = [];
-  if (data.topLanguages && data.topLanguages.length > 0)
-    metaParts.push(
-      `${t("statTopLanguages", locale)}: ${data.topLanguages.join(", ")}`
-    );
-  if (data.memberSince !== null)
-    metaParts.push(`${t("statMemberSince", locale)} ${data.memberSince}`);
+  if (cards.length === 0) return null;
 
   return (
-    <section>
-      <div className="mx-auto w-full max-w-6xl px-5 py-14 md:px-8 md:py-20">
+    <section id="github-stats" className="scroll-mt-24">
+      <div className="mx-auto w-full max-w-6xl px-5 pt-14 md:px-8 md:pt-20">
         <SectionHead
           label={t("githubLabel", locale)}
           title={t("githubStatsTitle", locale)}
         />
-        <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="border-t border-line pt-4">
-              <dd className="text-4xl font-extrabold tracking-tight text-ink tabular-nums md:text-5xl">
-                {s.value}
-              </dd>
-              <dt className="mt-1.5 font-mono text-xs font-medium tracking-[0.14em] text-faded uppercase">
-                {s.label}
-              </dt>
+        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
+          {cards.map((c) => (
+            <div
+              key={c.label}
+              className="flex flex-col items-center rounded-3xl border border-line bg-panel px-4 py-6 text-center shadow-card"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E4E4FB] text-flame dark:bg-[#241A4D]">
+                {c.icon}
+              </span>
+              <span className="mt-3.5 text-3xl font-extrabold tracking-tight text-ink tabular-nums">
+                {c.value}
+              </span>
+              <span className="mt-1 text-sm text-faded">{c.label}</span>
             </div>
           ))}
-        </dl>
-        <p className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 leading-relaxed text-faded">
-          {metaParts.length > 0 && <span>{metaParts.join("  ·  ")}</span>}
-          {metaParts.length > 0 && <span aria-hidden="true">·</span>}
-          <a
-            href={githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-medium transition-colors hover:text-flame"
-          >
-            <GithubIcon className="h-[18px] w-[18px]" />
-            github.com/bintangyudhis
-          </a>
-        </p>
-        <p className="mt-3 text-sm text-faded">{t("statsUpdatedNote", locale)}</p>
+        </div>
       </div>
     </section>
   );

@@ -46,12 +46,14 @@ export default async function Home() {
         fallbackProjects={content.projects}
       />
       <Skills locale={locale} groups={content.skillGroups} />
-      <GithubStats
-        locale={locale}
-        data={github}
-        githubUrl={content.profile.githubUrl}
-      />
-      {contributions && <GithubGraph locale={locale} years={contributions} />}
+      <GithubStats locale={locale} data={github} contributions={contributions} />
+      {contributions && (
+        <GithubGraph
+          locale={locale}
+          years={contributions}
+          githubUrl={content.profile.githubUrl}
+        />
+      )}
       <Contact locale={locale} profile={content.profile} />
     </>
   );

@@ -210,6 +210,16 @@ const ui = {
   },
   graphLess: { id: "Sedikit", en: "Less", jp: "少" },
   graphMore: { id: "Banyak", en: "More", jp: "多" },
+  graphHistoryTitle: {
+    id: "Riwayat Kontribusi",
+    en: "Contribution History",
+    jp: "コントリビューション履歴",
+  },
+  statCardContributions: { id: "Kontribusi", en: "Contributions", jp: "コントリビューション" },
+  statCardRepos: { id: "Repository", en: "Repository", jp: "リポジトリ" },
+  statCardStars: { id: "Bintang", en: "Stars", jp: "スター" },
+  statCardFollowers: { id: "Followers", en: "Followers", jp: "フォロワー" },
+  statCardFollowing: { id: "Following", en: "Following", jp: "フォロー中" },
   statRepos: {
     id: "repositori publik",
     en: "public repositories",
