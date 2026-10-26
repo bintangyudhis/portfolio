@@ -1,4 +1,4 @@
-import { pick, t, type Locale } from "@/lib/i18n";
+import { t, type Locale } from "@/lib/i18n";
 import type { ProfileContent } from "@/lib/content";
 
 export default function SiteFooter({
@@ -18,10 +18,10 @@ export default function SiteFooter({
   ];
 
   return (
-    <footer className="border-t border-band-line bg-band text-band-ink">
-      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-8 gap-y-3 px-5 py-6 md:px-8">
-        <p className="min-w-0 text-sm text-band-faded">
-          © {year} {profile.name} — {t("footerTagline", locale)}
+    <footer className="border-t border-line">
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-5 py-7 md:px-8">
+        <p className="min-w-0 text-sm text-faded">
+          © {year} {profile.name} · {t("footerTagline", locale)}
         </p>
         <nav
           className="flex flex-wrap gap-x-5 gap-y-1 md:ml-auto"
@@ -33,7 +33,7 @@ export default function SiteFooter({
               href={c.href}
               target={c.href.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className={`py-1 text-sm text-band-ink/85 transition-colors hover:text-flame ${
+              className={`py-1 text-sm font-medium text-ink/80 transition-colors hover:text-flame ${
                 c.href.startsWith("mailto")
                   ? "break-all"
                   : "whitespace-nowrap"
@@ -45,12 +45,11 @@ export default function SiteFooter({
         </nav>
         <a
           href="#top"
-          className="text-sm whitespace-nowrap text-band-faded transition-colors hover:text-band-ink"
+          className="text-sm whitespace-nowrap text-faded transition-colors hover:text-ink"
         >
           {t("backToTop", locale)}
         </a>
       </div>
-      <span className="sr-only">{pick(profile.location, locale)}</span>
     </footer>
   );
 }

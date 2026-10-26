@@ -48,6 +48,7 @@ export function rowToProfile(r: Row): ProfileContent {
     instagramUrl: r.instagram_url ?? "",
     discordUrl: r.discord_url ?? "",
     photoUrl: r.photo_url ?? undefined,
+    cvUrl: r.cv_url ?? undefined,
   };
 }
 
@@ -69,6 +70,7 @@ export function profileToRow(p: ProfileContent): Row {
     focus: p.focus,
     languages: p.languages,
     photo_url: p.photoUrl ?? null,
+    cv_url: p.cvUrl ?? null,
     updated_at: new Date().toISOString(),
   };
 }

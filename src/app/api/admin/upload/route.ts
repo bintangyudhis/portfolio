@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb, badRequest, dbError } from "@/lib/admin-route";
 
 const BUCKET = "portfolio-media";
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_BYTES = 5 * 1024 * 1024; // 5 MB for images
+const CV_MAX_BYTES = 10 * 1024 * 1024; // 10 MB for the CV PDF
 const TYPES: Record<string, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
@@ -28,15 +29,30 @@ export async function POST(req: NextRequest) {
   if (!(file instanceof File)) {
     return badRequest("Tidak ada berkas yang diunggah (field 'file').");
   }
-  const ext = TYPES[file.type];
-  if (!ext) {
-    return badRequest("Format tidak didukung — gunakan PNG, JPG, WebP, atau GIF.");
-  }
-  if (file.size === 0 || file.size > MAX_BYTES) {
-    return badRequest("Ukuran berkas harus antara 1 byte dan 5 MB.");
+
+  // CV uploads are special-cased: PDF only, larger cap, stored under cv/.
+  // Everything else keeps the original image rules.
+  const isCv = form?.get("purpose") === "cv";
+  let path: string;
+  if (isCv) {
+    if (file.type !== "application/pdf") {
+      return badRequest("Format tidak didukung. Gunakan berkas PDF untuk CV.");
+    }
+    if (file.size === 0 || file.size > CV_MAX_BYTES) {
+      return badRequest("Ukuran CV harus antara 1 byte dan 10 MB.");
+    }
+    path = `cv/${Date.now()}-${slugify(file.name)}.pdf`;
+  } else {
+    const ext = TYPES[file.type];
+    if (!ext) {
+      return badRequest("Format tidak didukung — gunakan PNG, JPG, WebP, atau GIF.");
+    }
+    if (file.size === 0 || file.size > MAX_BYTES) {
+      return badRequest("Ukuran berkas harus antara 1 byte dan 5 MB.");
+    }
+    path = `${Date.now()}-${slugify(file.name)}.${ext}`;
   }
 
-  const path = `${Date.now()}-${slugify(file.name)}.${ext}`;
   const bytes = await file.arrayBuffer();
   const { error: upError } = await sb.storage.from(BUCKET).upload(path, bytes, {
     contentType: file.type,

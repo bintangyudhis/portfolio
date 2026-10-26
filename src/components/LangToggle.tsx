@@ -11,7 +11,7 @@ function applyLocale(next: Locale) {
   try {
     localStorage.setItem(LANG_COOKIE, next);
   } catch {
-    // storage unavailable — cookie alone is enough
+    // storage unavailable: the cookie alone is enough
   }
   document.documentElement.lang = next === "jp" ? "ja" : next;
 }
@@ -32,23 +32,25 @@ export default function LangToggle({
   };
 
   return (
-    <div className="flex items-center gap-1 font-mono text-[13px]" role="group" aria-label={ariaLabel}>
-      {LOCALES.map((l, i) => (
-        <span key={l} className="flex items-center gap-1">
-          {i > 0 && <span className="text-line" aria-hidden>|</span>}
-          <button
-            type="button"
-            onClick={() => choose(l)}
-            aria-pressed={l === locale}
-            className={
-              l === locale
-                ? "font-semibold text-flame underline decoration-flame underline-offset-4"
-                : "text-faded transition-colors hover:text-ink"
-            }
-          >
-            {LABELS[l]}
-          </button>
-        </span>
+    <div
+      className="flex items-center gap-0.5 rounded-full border border-line bg-panel p-1 font-mono text-xs"
+      role="group"
+      aria-label={ariaLabel}
+    >
+      {LOCALES.map((l) => (
+        <button
+          key={l}
+          type="button"
+          onClick={() => choose(l)}
+          aria-pressed={l === locale}
+          className={
+            l === locale
+              ? "rounded-full bg-flame px-2.5 py-1 font-semibold text-on-accent"
+              : "rounded-full px-2.5 py-1 text-faded transition-colors hover:text-ink"
+          }
+        >
+          {LABELS[l]}
+        </button>
       ))}
     </div>
   );

@@ -9,9 +9,9 @@ const LEVEL_KEY: Record<SkillLevel, UiKey> = {
 };
 
 /**
- * Technical skills: groups with a short description, each skill listed
- * with its level as a word. Certifications and spoken languages live in
- * the Education section.
+ * Technical skills as cards: one per group, with a short description
+ * and each skill's level written as a word. Certifications and spoken
+ * languages live in the Education section.
  */
 export default function Skills({
   locale,
@@ -21,40 +21,40 @@ export default function Skills({
   groups: SkillGroup[];
 }) {
   return (
-    <section id="skills" className="scroll-mt-24 border-t border-line">
-      <div className="mx-auto w-full max-w-5xl px-5 py-14 md:px-8 md:py-20">
+    <section id="skills" className="scroll-mt-24">
+      <div className="mx-auto w-full max-w-6xl px-5 py-14 md:px-8 md:py-20">
         <SectionHead
           label={t("technicalLabel", locale)}
           title={t("navSkills", locale)}
           intro={t("skillsIntro", locale)}
         />
 
-        <div className="mt-10">
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
           {groups.map((g) => (
             <div
               key={g.slug}
-              className="grid gap-3 border-t border-line py-7 first:border-t-0 first:pt-0 md:grid-cols-12 md:gap-6"
+              className="rounded-3xl border border-line bg-panel p-6 shadow-card md:p-7"
             >
-              <div className="min-w-0 md:col-span-5">
-                <h3 className="font-display text-xl font-semibold text-ink">
-                  {pick(g.name, locale)}
-                </h3>
-                <p className="mt-1.5 leading-relaxed text-faded">
-                  {pick(g.blurb, locale)}
-                </p>
-              </div>
-              <ul className="min-w-0 md:col-span-7">
+              <h3 className="text-xl font-extrabold tracking-tight text-ink">
+                {pick(g.name, locale)}
+              </h3>
+              <p className="mt-1.5 leading-relaxed text-faded">
+                {pick(g.blurb, locale)}
+              </p>
+              <ul className="mt-4 divide-y divide-line">
                 {g.skills.map((s) => (
                   <li
                     key={s.name}
-                    className="flex items-baseline justify-between gap-4 border-b border-line/70 py-2.5 last:border-b-0"
+                    className="flex items-baseline justify-between gap-4 py-2.5"
                   >
                     <span className="min-w-0 font-medium text-ink wrap-anywhere">
                       {s.name}
                     </span>
                     <span
                       className={`font-mono text-[13px] whitespace-nowrap ${
-                        s.level === "advanced" ? "text-flame" : "text-faded"
+                        s.level === "advanced"
+                          ? "font-semibold text-flame"
+                          : "text-faded"
                       }`}
                     >
                       {t(LEVEL_KEY[s.level], locale)}

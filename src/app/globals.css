@@ -1,65 +1,75 @@
 @import "tailwindcss";
 
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4
-   Redesign v2 — aulky.app rhythm: small label, large upright heading,
-   hairlines, plain lists. Two themes, one token set:
-   light = warm paper + ink + burnt orange;
-   dark  = Gojo void (#0A0620) + lavender-white + violet #A855F7,
-           magenta #E879F9 as --highlight, used rarely.
-   Components reference tokens only — never raw hex. */
+/* Redesign v3: the aulky.app visual system rebuilt with Yudhis's content.
+   Off-white dot grid, huge Archivo grotesque, indigo accent, big rounded
+   cards with soft shadows and inner inset panels, mono for data.
+   Dark mode keeps the same layout with the Gojo palette by color only:
+   flat void #0A0620, lavender-white text, violet #A855F7 accent,
+   magenta #E879F9 reserved for star icons.
+   Components reference tokens only, never raw hex. */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --paper: #faf9f6;
-  --panel: #f2efe7;
-  --ink: #1b1815;
-  --faded: #6f675c;
-  --accent: #b33e15;
-  --highlight: #b33e15;
-  --line: #e3ddce;
-  --band: #171310;
-  --band-soft: #26201a;
-  --band-ink: #faf8f2;
-  --band-faded: #a79c8d;
-  --band-line: #3b352c;
+  --paper: #fafaf9;
+  --panel: #ffffff;
+  --inset: #f3f3f6;
+  --lav: #edeafd;
+  --ink: #121216;
+  --faded: #6d6d78;
+  --accent: #5b5bd6;
+  --highlight: #5b5bd6;
+  --on-accent: #ffffff;
+  --line: #e5e5ea;
+  --dot: #dedee6;
+  --go: #3d9e63;
+  --shadow-card:
+    0 1px 2px rgb(18 18 22 / 0.05), 0 16px 40px -24px rgb(18 18 22 / 0.18);
+  --shadow-chip:
+    0 2px 6px rgb(18 18 22 / 0.08), 0 14px 28px -14px rgb(18 18 22 / 0.25);
 }
 
 .dark {
   --paper: #0a0620;
-  --panel: #100a2c;
+  --panel: #140c33;
+  --inset: #1d1245;
+  --lav: #1a0f42;
   --ink: #ece9f8;
   --faded: #a8a2c8;
   --accent: #a855f7;
   --highlight: #e879f9;
+  --on-accent: #ffffff;
   --line: #2a2150;
-  --band: #060313;
-  --band-soft: #150c33;
-  --band-ink: #ece9f8;
-  --band-faded: #9891bc;
-  --band-line: #2a2150;
+  --dot: #251a52;
+  --go: #4cc38a;
+  --shadow-card:
+    0 1px 2px rgb(0 0 0 / 0.45), 0 16px 40px -24px rgb(0 0 0 / 0.6);
+  --shadow-chip:
+    0 2px 6px rgb(0 0 0 / 0.4), 0 14px 28px -14px rgb(0 0 0 / 0.65);
 }
 
 @theme inline {
   --font-sans: var(--font-archivo), "Hiragino Kaku Gothic ProN", "Hiragino Sans",
     "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-fraunces), "Hiragino Mincho ProN", "Yu Mincho",
-    "Noto Serif JP", Georgia, "Times New Roman", serif;
+  --font-display: var(--font-archivo), "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans", "Yu Gothic", "Noto Sans JP", ui-sans-serif, system-ui,
+    sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-paper: var(--paper);
   --color-panel: var(--panel);
+  --color-inset: var(--inset);
+  --color-lav: var(--lav);
   --color-ink: var(--ink);
   --color-faded: var(--faded);
-  /* Accent slot: burnt orange in light, Gojo violet in dark. */
+  /* Accent slot: indigo in light, Gojo violet in dark. */
   --color-flame: var(--accent);
   --color-highlight: var(--highlight);
+  --color-on-accent: var(--on-accent);
   --color-line: var(--line);
-  --color-band: var(--band);
-  --color-band-soft: var(--band-soft);
-  --color-band-ink: var(--band-ink);
-  --color-band-faded: var(--band-faded);
-  --color-band-line: var(--band-line);
+  --color-go: var(--go);
+  --shadow-card: var(--shadow-card);
+  --shadow-chip: var(--shadow-chip);
 }
 
 html {
@@ -76,9 +86,15 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* The dot grid lives on the public body only; admin stays flat. */
+.site-body {
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.1px);
+  background-size: 22px 22px;
+}
+
 ::selection {
   background: var(--accent);
-  color: var(--paper);
+  color: var(--on-accent);
 }
 
 :focus-visible {
@@ -86,7 +102,7 @@ body {
   outline-offset: 3px;
 }
 
-/* The single motion moment: the intro settles in on load. */
+/* Entrance: content settles in on load. */
 @keyframes hero-in {
   from {
     opacity: 0;
@@ -105,12 +121,51 @@ body {
   animation: hero-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 
+/* The terminal cursor after the hero name. */
+@keyframes cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.cursor-blink {
+  animation: cursor-blink 1.1s steps(1) infinite;
+}
+
+/* The glyph chips on the photo panel drift very slightly. */
+@keyframes chip-float {
+  from {
+    transform: translateY(-4px);
+  }
+  to {
+    transform: translateY(5px);
+  }
+}
+
+.chip-float {
+  animation: chip-float 5s ease-in-out infinite alternate;
+}
+.chip-float-late {
+  animation: chip-float 6s ease-in-out 1.2s infinite alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .hero-in,
-  .hero-in-late {
+  .hero-in-late,
+  .chip-float,
+  .chip-float-late {
     animation: none;
+  }
+  .cursor-blink {
+    animation: none;
+    opacity: 1;
   }
 }

@@ -59,6 +59,8 @@ function mapProfile(row: Row): ProfileContent {
     discordUrl: row.discord_url ?? undefined,
     // Column added by migration 0003; absent on older databases.
     photoUrl: row.photo_url ?? undefined,
+    // Column cv_url arrives with its own migration; absent until then.
+    cvUrl: row.cv_url ?? undefined,
   };
 }
 
@@ -70,6 +72,8 @@ function mapExperiences(rows: Row[]): ExperienceItem[] {
     period: r.period,
     role: r.role,
     description: r.description,
+    // No tech column in the schema today; tolerate one if it ever appears.
+    tech: Array.isArray(r.tech) && r.tech.length > 0 ? r.tech : undefined,
     sort: r.sort,
   }));
 }
@@ -233,13 +237,58 @@ export function invalidateContentCache(): void {
   cache = null;
 }
 
+/**
+ * The CV file URL lives in its own column (cv_url) that is being added by
+ * a separate migration. It is fetched in its own tolerant query so a
+ * database without the column yet simply behaves as "no CV uploaded":
+ * every failure path returns undefined instead of breaking the page.
+ */
+async function fetchCvUrl(): Promise<string | undefined> {
+  const sb = getAnonClient();
+  if (sb) {
+    try {
+      const { data, error } = await sb
+        .from("portfolio_profile")
+        .select("cv_url")
+        .eq("id", 1)
+        .maybeSingle();
+      const value = (data as Row | null)?.cv_url;
+      if (!error && typeof value === "string" && value) return value;
+    } catch {
+      // Column not there yet: no CV.
+    }
+  }
+  const p = getPool();
+  if (p) {
+    try {
+      const res = await p.query(
+        "select cv_url from public.portfolio_profile where id = 1"
+      );
+      const value = (res.rows[0] as Row | undefined)?.cv_url;
+      if (typeof value === "string" && value) return value;
+    } catch {
+      // Column not there yet: no CV.
+    }
+  }
+  return undefined;
+}
+
 export async function getPortfolioContent(): Promise<PortfolioContent> {
   if (cache && Date.now() - cache.at < CACHE_MS) {
     return cache.data ?? fallbackContent;
   }
   const data = (await fetchFromRest()) ?? (await fetchFromPg());
+  const cvUrl = await fetchCvUrl();
+  if (data) {
+    if (cvUrl) data.profile.cvUrl = cvUrl;
+    cache = { at: Date.now(), data };
+    return data;
+  }
   cache = { at: Date.now(), data };
-  return data ?? fallbackContent;
+  // Never mutate the shared fallback object when attaching the CV URL.
+  return cvUrl
+    ? { ...fallbackContent, profile: { ...fallbackContent.profile, cvUrl } }
+    : fallbackContent;
 }
 
 export interface StoredMessage {

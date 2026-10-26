@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
   }
   if (clean.message.length < 10) {
     return NextResponse.json(
-      { error: "Your message is too short — please write at least a few words." },
+      { error: "Your message is too short. Please write at least a few words." },
       { status: 400 }
     );
   }

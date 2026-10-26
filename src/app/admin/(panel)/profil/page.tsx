@@ -18,6 +18,7 @@ import {
   type SaveState,
 } from "@/components/admin/ui";
 import ImageUpload from "@/components/admin/ImageUpload";
+import CvUpload from "@/components/admin/CvUpload";
 
 const LOCALES: Locale[] = ["id", "en", "jp"];
 const emptyLoc = (): Localized => ({ id: "", en: "", jp: "" });
@@ -137,6 +138,11 @@ export default function ProfilPage() {
             label="Foto profil"
             value={profile.photoUrl ?? ""}
             onChange={(url) => set("photoUrl", url || undefined)}
+          />
+          <CvUpload
+            label="CV (PDF)"
+            value={profile.cvUrl ?? ""}
+            onChange={(url) => set("cvUrl", url || undefined)}
           />
         </section>
 

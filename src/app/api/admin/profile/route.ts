@@ -66,6 +66,7 @@ export async function PUT(req: NextRequest) {
     instagramUrl: optString(body.instagramUrl, 500) ?? "",
     discordUrl: optString(body.discordUrl, 500) ?? "",
     photoUrl: optString(body.photoUrl, 1000) ?? undefined,
+    cvUrl: optString(body.cvUrl, 1000) ?? undefined,
   };
   if (!profile.githubUrl || !profile.linkedinUrl) {
     return badRequest("URL GitHub dan LinkedIn wajib diisi.");

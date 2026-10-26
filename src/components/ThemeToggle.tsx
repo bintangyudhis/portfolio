@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Light / Gojo-dark toggle. The pre-paint script in the root layout has
+ * Light / dark toggle. The pre-paint script in the root layout has
  * already applied the stored choice as a `dark` class on <html>; this
  * button only flips it and persists the new value under "theme".
- * Icons swap purely through the dark variant — no state, no flash.
+ * Icons swap purely through the dark variant: no state, no flash.
  */
 export default function ThemeToggle({ ariaLabel }: { ariaLabel: string }) {
   const toggle = () => {
@@ -12,7 +12,7 @@ export default function ThemeToggle({ ariaLabel }: { ariaLabel: string }) {
     try {
       localStorage.setItem("theme", dark ? "dark" : "light");
     } catch {
-      // storage unavailable — the class alone still themes this page view
+      // storage unavailable: the class alone still themes this page view
     }
   };
 
@@ -22,9 +22,9 @@ export default function ThemeToggle({ ariaLabel }: { ariaLabel: string }) {
       onClick={toggle}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className="grid h-9 w-9 shrink-0 place-items-center text-faded transition-colors hover:text-flame"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-line bg-panel text-faded transition-colors hover:text-flame"
     >
-      {/* Moon — shown in light mode */}
+      {/* Moon, shown in light mode */}
       <svg
         className="h-5 w-5 dark:hidden"
         viewBox="0 0 24 24"
@@ -39,7 +39,7 @@ export default function ThemeToggle({ ariaLabel }: { ariaLabel: string }) {
           d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
         />
       </svg>
-      {/* Sun — shown in dark mode */}
+      {/* Sun, shown in dark mode */}
       <svg
         className="hidden h-5 w-5 dark:block"
         viewBox="0 0 24 24"

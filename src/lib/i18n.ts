@@ -26,6 +26,12 @@ const ui = {
 
   heroProjects: { id: "Lihat proyek", en: "See projects", jp: "プロジェクトを見る" },
   heroContact: { id: "Hubungi saya", en: "Contact me", jp: "お問い合わせ" },
+  cvButton: { id: "Curriculum Vitae", en: "Curriculum Vitae", jp: "履歴書" },
+  highlightsTitle: {
+    id: "Tanggung jawab utama & sorotan",
+    en: "Key responsibilities & highlights",
+    jp: "主な担当業務とハイライト",
+  },
 
   experienceIntro: {
     id: "Pekerjaan, organisasi, pendidikan, dan kontribusi terbuka.",
@@ -33,8 +39,8 @@ const ui = {
     jp: "職務、組織、教育、オープンな貢献の略歴。",
   },
   projectsIntro: {
-    id: "Perangkat lunak yang sudah jadi dan bisa dibuka — setiap entri punya tautan ke repo dan versi live-nya.",
-    en: "Finished software you can open — every entry links to its repository and live version.",
+    id: "Perangkat lunak yang sudah jadi dan bisa dibuka. Setiap entri punya tautan ke repo dan versi live-nya.",
+    en: "Finished software you can open. Every entry links to its repository and live version.",
     jp: "公開中の完成したソフトウェア。各項目にリポジトリとライブ版へのリンクがあります。",
   },
   projectFeatured: { id: "Unggulan", en: "Featured", jp: "注目" },
@@ -43,8 +49,8 @@ const ui = {
   liveLink: { id: "Live", en: "Live", jp: "ライブ" },
 
   skillsIntro: {
-    id: "Dikelompokkan menurut bidang, dengan tingkat berupa kata — bukan angka persen.",
-    en: "Grouped by field, with levels in words — not percentages.",
+    id: "Dikelompokkan menurut bidang, dengan tingkat berupa kata, bukan angka persen.",
+    en: "Grouped by field, with levels in words, not percentages.",
     jp: "分野別に整理し、レベルはパーセントではなく言葉で表しています。",
   },
   levelAdvanced: { id: "Mahir", en: "Advanced", jp: "上級" },
@@ -77,8 +83,8 @@ const ui = {
   formSend: { id: "Kirim pesan", en: "Send message", jp: "送信する" },
   formSending: { id: "Mengirim…", en: "Sending…", jp: "送信中…" },
   formSent: {
-    id: "Pesan terkirim. Terima kasih — saya akan membalas secepatnya.",
-    en: "Message sent. Thank you — I'll reply as soon as I can.",
+    id: "Pesan terkirim. Terima kasih, saya akan membalas secepatnya.",
+    en: "Message sent. Thank you. I'll reply as soon as I can.",
     jp: "送信しました。ありがとうございます。できるだけ早く返信します。",
   },
   formError: {
@@ -140,9 +146,9 @@ const ui = {
   technicalLabel: { id: "Teknis", en: "Technical", jp: "技術" },
 
   footerTagline: {
-    id: "Mahasiswa Informatika — Telkom University Purwokerto.",
-    en: "Informatics student — Telkom University Purwokerto.",
-    jp: "情報学専攻の学生 — テルコム大学プルウォケルト校。",
+    id: "Mahasiswa Informatika, Telkom University Purwokerto.",
+    en: "Informatics student, Telkom University Purwokerto.",
+    jp: "情報学専攻の学生、テルコム大学プルウォケルト校。",
   },
   backToTop: { id: "Kembali ke atas", en: "Back to top", jp: "トップへ戻る" },
 } satisfies Record<string, Localized>;
