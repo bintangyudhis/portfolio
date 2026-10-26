@@ -276,7 +276,7 @@ async function fetchCvUrl(): Promise<string | undefined> {
   return undefined;
 }
 
-async function fetchCvUrlEn(): Promise<string | undefined> {
+async function fetchCvUrlEn(cvUrl?: string): Promise<string | undefined> {
   const sb = getAnonClient();
   if (sb) {
     try {
@@ -288,7 +288,7 @@ async function fetchCvUrlEn(): Promise<string | undefined> {
       const value = (data as Row | null)?.cv_url_en;
       if (!error && typeof value === "string" && value) return value;
     } catch {
-      // Column not there yet: no English CV.
+      // Column not there yet: fall through to the naming convention.
     }
   }
   const p = getPool();
@@ -300,8 +300,13 @@ async function fetchCvUrlEn(): Promise<string | undefined> {
       const value = (res.rows[0] as Row | undefined)?.cv_url_en;
       if (typeof value === "string" && value) return value;
     } catch {
-      // Column not there yet: no English CV.
+      // Column not there yet: fall through to the naming convention.
     }
+  }
+  // Convention while the cv_url_en column is on its way: the English
+  // file sits next to the Indonesian one with an -en suffix.
+  if (cvUrl && cvUrl.includes("-id.pdf")) {
+    return cvUrl.replace("-id.pdf", "-en.pdf");
   }
   return undefined;
 }
@@ -312,7 +317,7 @@ export async function getPortfolioContent(): Promise<PortfolioContent> {
   }
   const data = (await fetchFromRest()) ?? (await fetchFromPg());
   const cvUrl = await fetchCvUrl();
-  const cvUrlEn = await fetchCvUrlEn();
+  const cvUrlEn = await fetchCvUrlEn(cvUrl);
   if (data) {
     if (cvUrl) data.profile.cvUrl = cvUrl;
     if (cvUrlEn) data.profile.cvUrlEn = cvUrlEn;
