@@ -160,33 +160,27 @@ async function fetchFromRest(): Promise<PortfolioContent | null> {
   const sb = getAnonClient();
   if (!sb) return null;
   try {
-    const [profileRes, expRes, projRes, skillRes] = await Promise.all([
-      sb.from("portfolio_profile").select("*").eq("id", 1).maybeSingle(),
-      sb.from("portfolio_experiences").select("*").order("sort", { ascending: true }),
-      sb.from("portfolio_projects").select("*").order("sort", { ascending: true }),
-      sb.from("portfolio_skills").select("*").order("sort", { ascending: true }),
-    ]);
+    // All six reads run in one parallel batch: certifications and
+    // publications are best-effort (their tables arrived in later
+    // migrations), the other four are required.
+    const [profileRes, expRes, projRes, skillRes, certRes, pubRes] =
+      await Promise.all([
+        sb.from("portfolio_profile").select("*").eq("id", 1).maybeSingle(),
+        sb.from("portfolio_experiences").select("*").order("sort", { ascending: true }),
+        sb.from("portfolio_projects").select("*").order("sort", { ascending: true }),
+        sb.from("portfolio_skills").select("*").order("sort", { ascending: true }),
+        sb.from("portfolio_certifications").select("*").order("sort", { ascending: true }),
+        sb.from("portfolio_publications").select("*").order("sort", { ascending: true }),
+      ]);
     if (profileRes.error || expRes.error || projRes.error || skillRes.error) {
       return null;
     }
-    // Certifications live in migration 0002 — best effort: a database that
-    // only has 0001 still serves the rest of the content.
-    let certRows: Row[] = [];
-    const certRes = await sb
-      .from("portfolio_certifications")
-      .select("*")
-      .order("sort", { ascending: true });
-    if (!certRes.error && certRes.data) certRows = certRes.data as Row[];
-
-    // Publications live in migration 0004 — best effort like the above;
+    const certRows: Row[] =
+      !certRes.error && certRes.data ? (certRes.data as Row[]) : [];
     // null (not []) marks "table missing" so assemble() uses the
     // curated fallback list instead of an empty section.
-    let pubRows: Row[] | null = null;
-    const pubRes = await sb
-      .from("portfolio_publications")
-      .select("*")
-      .order("sort", { ascending: true });
-    if (!pubRes.error && pubRes.data) pubRows = pubRes.data as Row[];
+    const pubRows: Row[] | null =
+      !pubRes.error && pubRes.data ? (pubRes.data as Row[]) : null;
 
     return assemble(
       profileRes.data as Row | null,
@@ -272,7 +266,7 @@ async function fetchFromPg(): Promise<PortfolioContent | null> {
 
 // Small in-process cache so a burst of requests doesn't hammer the DB.
 let cache: { at: number; data: PortfolioContent | null } | null = null;
-const CACHE_MS = 60_000;
+const CACHE_MS = 300_000;
 
 /** Drop the in-process content cache (called by the admin CMS after a write). */
 export function invalidateContentCache(): void {
