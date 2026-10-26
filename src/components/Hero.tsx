@@ -1,7 +1,13 @@
 import Image from "next/image";
-import { pick, t, type Locale } from "@/lib/i18n";
+import { pick, type Locale } from "@/lib/i18n";
 import type { ProfileContent } from "@/lib/content";
 
+/**
+ * Intro block in the aulky rhythm: modest name, role line, one short
+ * paragraph, a small photo. Light mode shows the CMS profile photo;
+ * the Gojo dark theme swaps it for a transparent Gojo cutout —
+ * floating, never framed — in the same slot.
+ */
 export default function Hero({
   locale,
   profile,
@@ -9,88 +15,84 @@ export default function Hero({
   locale: Locale;
   profile: ProfileContent;
 }) {
-  const [first, ...rest] = profile.name.split(" ");
+  const linkCls =
+    "underline decoration-line underline-offset-4 transition-colors hover:text-flame hover:decoration-flame";
 
   return (
-    <section id="top" className="mx-auto max-w-6xl px-5 pt-12 pb-16 md:px-8 md:pt-16 md:pb-24">
-      <p className="hero-in flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-faded">
-        <span className="inline-block h-2 w-2 bg-flame" aria-hidden />
-        <span>{pick(profile.location, locale)}</span>
-        <span aria-hidden>—</span>
-        <span>{profile.university}</span>
-      </p>
-
-      <h1 className="hero-in-late mt-6 font-display text-[clamp(3.2rem,10.5vw,7.25rem)] leading-[0.98] font-semibold tracking-[-0.015em] text-ink">
-        {first}
-        {rest.length > 0 && (
-          <>
-            <br />
-            {rest.join(" ")}
-          </>
-        )}
-      </h1>
-
-      <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12">
-        <div className="md:col-span-5">
-          <p className="text-sm font-semibold tracking-wide text-flame">
+    <section
+      id="top"
+      className="mx-auto w-full max-w-5xl px-5 pt-12 pb-14 md:px-8 md:pt-16 md:pb-20"
+    >
+      <div className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:gap-12">
+        <div className="min-w-0 flex-1">
+          <h1 className="hero-in font-display text-[clamp(2.4rem,6vw,3.4rem)] leading-[1.05] font-semibold tracking-[-0.01em] text-ink wrap-anywhere">
+            {profile.name}
+          </h1>
+          <p className="hero-in-late mt-4 text-base font-semibold text-flame">
             {pick(profile.role, locale)}
           </p>
-          <p className="mt-3 font-display text-2xl leading-snug font-medium text-ink md:text-[1.7rem]">
-            {pick(profile.heroLine, locale)}
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a
-              href="#projects"
-              className="bg-flame px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-paper transition-colors hover:bg-ink"
-            >
-              {t("heroProjects", locale)}
-            </a>
-            <a
-              href="#contact"
-              className="border border-ink px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-ink transition-colors hover:bg-ink hover:text-paper"
-            >
-              {t("heroContact", locale)}
-            </a>
-          </div>
-        </div>
-
-        <div className="md:col-span-6 md:col-start-7">
-          {profile.photoUrl && (
-            <figure className="mb-8">
-              <div className="border border-ink/60 p-2">
-                <Image
-                  src={profile.photoUrl}
-                  alt={profile.name}
-                  width={880}
-                  height={660}
-                  className="aspect-[4/3] w-full object-cover"
-                />
-              </div>
-              <figcaption className="mt-2 font-mono text-xs text-faded">
-                {profile.name} — {pick(profile.location, locale)}
-              </figcaption>
-            </figure>
-          )}
-          <p className="max-w-prose text-base leading-relaxed text-ink/85 md:text-lg">
+          <p className="hero-in-late mt-4 max-w-prose text-base leading-relaxed text-ink/85 md:text-lg">
             {pick(profile.intro, locale)}
           </p>
-          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
+
+          <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
             <li>
-              <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-line underline-offset-4 transition-colors hover:text-flame hover:decoration-flame">
+              <a
+                href={profile.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkCls}
+              >
                 GitHub
               </a>
             </li>
             <li>
-              <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-line underline-offset-4 transition-colors hover:text-flame hover:decoration-flame">
+              <a
+                href={profile.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkCls}
+              >
                 LinkedIn
               </a>
             </li>
             <li>
-              <a href={`mailto:${profile.email}`} className="underline decoration-line underline-offset-4 transition-colors hover:text-flame hover:decoration-flame">
+              <a href={`mailto:${profile.email}`} className={linkCls}>
                 {profile.email}
               </a>
             </li>
           </ul>
+
+          <p className="mt-9 font-mono text-[13px] text-faded">
+            {pick(profile.location, locale)}
+            <span aria-hidden> — </span>
+            {profile.university}
+          </p>
+        </div>
+
+        <div className="shrink-0">
+          {profile.photoUrl && (
+            <figure className="dark:hidden">
+              <Image
+                src={profile.photoUrl}
+                alt={profile.name}
+                width={352}
+                height={440}
+                priority
+                className="aspect-[4/5] w-32 border border-line object-cover sm:w-40 md:w-44"
+              />
+            </figure>
+          )}
+          <figure className="hidden dark:block">
+            <Image
+              src="/gojo-cutout.png"
+              alt="Gojo Satoru"
+              width={349}
+              height={476}
+              priority
+              className="aspect-[698/952] w-32 object-contain sm:w-40 md:w-44"
+            />
+          </figure>
         </div>
       </div>
     </section>

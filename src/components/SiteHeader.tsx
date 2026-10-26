@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LangToggle from "./LangToggle";
+import ThemeToggle from "./ThemeToggle";
 import { t, type Locale } from "@/lib/i18n";
 
 export default function SiteHeader({
@@ -19,31 +20,50 @@ export default function SiteHeader({
     { href: "#contact", label: t("navContact", locale) },
   ];
 
+  const linkCls =
+    "py-1 text-sm font-medium whitespace-nowrap text-ink/80 transition-colors hover:text-flame";
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3.5 md:flex-nowrap md:px-8">
-        <Link href="#top" className="flex min-w-0 items-baseline gap-3">
-          <span className="font-display text-lg font-semibold tracking-tight whitespace-nowrap">
-            {name}
-          </span>
-          <span className="hidden truncate text-sm text-faded lg:inline">{role}</span>
-        </Link>
+      <div className="mx-auto w-full max-w-5xl px-5 md:px-8">
+        <div className="flex items-center gap-x-5 py-3">
+          <Link href="#top" className="flex min-w-0 items-baseline gap-3">
+            <span className="font-display text-lg font-semibold tracking-tight whitespace-nowrap">
+              {name}
+            </span>
+            <span className="hidden truncate text-sm text-faded xl:inline">
+              {role}
+            </span>
+          </Link>
 
-        <nav className="order-3 flex w-full flex-wrap items-center gap-x-5 gap-y-1 md:order-2 md:ml-auto md:w-auto" aria-label="Utama">
+          <nav
+            className="ml-auto hidden items-center gap-x-5 md:flex"
+            aria-label="Utama"
+          >
+            {links.map((l) => (
+              <a key={l.href} href={l.href} className={linkCls}>
+                {l.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-x-1.5 md:ml-0">
+            <LangToggle locale={locale} ariaLabel={t("languageLabel", locale)} />
+            <ThemeToggle ariaLabel={t("themeToggle", locale)} />
+          </div>
+        </div>
+
+        {/* Mobile: the nav gets its own row — links never wrap mid-label. */}
+        <nav
+          className="flex items-center gap-x-5 overflow-x-auto pb-3 [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
+          aria-label="Utama"
+        >
           {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="py-1 text-sm font-medium whitespace-nowrap text-ink/80 transition-colors hover:text-flame"
-            >
+            <a key={l.href} href={l.href} className={linkCls}>
               {l.label}
             </a>
           ))}
         </nav>
-
-        <div className="order-2 ml-auto md:order-3 md:ml-0">
-          <LangToggle locale={locale} ariaLabel={t("languageLabel", locale)} />
-        </div>
       </div>
     </header>
   );

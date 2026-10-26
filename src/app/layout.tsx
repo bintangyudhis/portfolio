@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Script from "next/script";
 import { Archivo, Fraunces, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
@@ -65,10 +66,17 @@ export default async function RootLayout({
       lang={locale === "jp" ? "ja" : locale}
       className="h-full"
       data-locale={locale}
+      suppressHydrationWarning
     >
       <body
         className={`${archivo.variable} ${fraunces.variable} ${plexMono.variable} flex min-h-full flex-col bg-paper text-ink antialiased`}
       >
+        {/* Pre-paint theme: apply the stored choice before first render so
+            the Gojo dark theme never flashes light. Light is the default;
+            admin gets no script and stays on the light tokens. */}
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`(function(){try{if(localStorage.getItem("theme")==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})();`}
+        </Script>
         <SiteHeader locale={locale} name={profile.name} role={pick(profile.role, locale)} />
         <main className="flex-1">{children}</main>
         <SiteFooter locale={locale} profile={profile} />

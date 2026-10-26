@@ -87,6 +87,58 @@ const ui = {
     jp: "送信できませんでした。少し待ってからもう一度お試しいただくか、直接メールでご連絡ください。",
   },
 
+  themeToggle: { id: "Ganti tema", en: "Toggle theme", jp: "テーマを切り替える" },
+
+  cvLabel: { id: "Curriculum Vitae", en: "Curriculum Vitae", jp: "職務経歴書" },
+  cvTitle: {
+    id: "Pengalaman & Kegiatan",
+    en: "Experience & Activities",
+    jp: "経歴と活動",
+  },
+  educationTitle: {
+    id: "Pendidikan & Sertifikasi",
+    en: "Education & Certifications",
+    jp: "学歴と資格",
+  },
+
+  portfolioLabel: { id: "Portofolio", en: "Portfolio", jp: "ポートフォリオ" },
+  featuredTitle: {
+    id: "Proyek Unggulan",
+    en: "Featured Projects",
+    jp: "注目のプロジェクト",
+  },
+  viewAll: { id: "Lihat semua", en: "View all", jp: "すべて見る" },
+
+  githubLabel: { id: "GitHub", en: "GitHub", jp: "GitHub" },
+  githubProjectsTitle: {
+    id: "Semua Proyek di GitHub",
+    en: "All Projects on GitHub",
+    jp: "GitHubの全プロジェクト",
+  },
+  githubProjectsIntro: {
+    id: "Setiap repositori publik di GitHub saya, dari yang paling baru diperbarui.",
+    en: "Every public repository on my GitHub, most recently updated first.",
+    jp: "GitHub上の公開リポジトリをすべて、更新が新しい順に並べています。",
+  },
+  githubStatsTitle: {
+    id: "Statistik GitHub",
+    en: "GitHub Statistics",
+    jp: "GitHubの統計",
+  },
+  statRepos: {
+    id: "repositori publik",
+    en: "public repositories",
+    jp: "公開リポジトリ",
+  },
+  statStars: {
+    id: "bintang di seluruh repositori",
+    en: "stars across all repositories",
+    jp: "全リポジトリのスター",
+  },
+  statFollowers: { id: "pengikut", en: "followers", jp: "フォロワー" },
+
+  technicalLabel: { id: "Teknis", en: "Technical", jp: "技術" },
+
   footerTagline: {
     id: "Mahasiswa Informatika — Telkom University Purwokerto.",
     en: "Informatics student — Telkom University Purwokerto.",

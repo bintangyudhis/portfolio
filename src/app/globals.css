@@ -1,8 +1,44 @@
 @import "tailwindcss";
 
-/* Hallmark · pre-emit critique: P5 H4 E5 S4 R4 V5
-   Editorial one-pager: paper + ink + one burnt-orange accent.
-   All colors and fonts are referenced through these tokens only. */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4
+   Redesign v2 — aulky.app rhythm: small label, large upright heading,
+   hairlines, plain lists. Two themes, one token set:
+   light = warm paper + ink + burnt orange;
+   dark  = Gojo void (#0A0620) + lavender-white + violet #A855F7,
+           magenta #E879F9 as --highlight, used rarely.
+   Components reference tokens only — never raw hex. */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --paper: #faf9f6;
+  --panel: #f2efe7;
+  --ink: #1b1815;
+  --faded: #6f675c;
+  --accent: #b33e15;
+  --highlight: #b33e15;
+  --line: #e3ddce;
+  --band: #171310;
+  --band-soft: #26201a;
+  --band-ink: #faf8f2;
+  --band-faded: #a79c8d;
+  --band-line: #3b352c;
+}
+
+.dark {
+  --paper: #0a0620;
+  --panel: #100a2c;
+  --ink: #ece9f8;
+  --faded: #a8a2c8;
+  --accent: #a855f7;
+  --highlight: #e879f9;
+  --line: #2a2150;
+  --band: #060313;
+  --band-soft: #150c33;
+  --band-ink: #ece9f8;
+  --band-faded: #9891bc;
+  --band-line: #2a2150;
+}
 
 @theme inline {
   --font-sans: var(--font-archivo), "Hiragino Kaku Gothic ProN", "Hiragino Sans",
@@ -11,16 +47,19 @@
     "Noto Serif JP", Georgia, "Times New Roman", serif;
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-paper: #faf8f2;
-  --color-panel: #f0ebdf;
-  --color-ink: #1b1815;
-  --color-faded: #6f675c;
-  --color-flame: #b33e15;
-  --color-line: #e0d9ca;
-  --color-coal: #171310;
-  --color-coal-soft: #241e18;
-  --color-coal-line: #3a342c;
-  --color-coal-faded: #a79c8d;
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-faded: var(--faded);
+  /* Accent slot: burnt orange in light, Gojo violet in dark. */
+  --color-flame: var(--accent);
+  --color-highlight: var(--highlight);
+  --color-line: var(--line);
+  --color-band: var(--band);
+  --color-band-soft: var(--band-soft);
+  --color-band-ink: var(--band-ink);
+  --color-band-faded: var(--band-faded);
+  --color-band-line: var(--band-line);
 }
 
 html {
@@ -30,24 +69,24 @@ html {
 
 body {
   overflow-x: clip;
-  background-color: var(--color-paper);
-  color: var(--color-ink);
+  background-color: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--color-flame);
-  color: var(--color-paper);
+  background: var(--accent);
+  color: var(--paper);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-flame);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
-/* The single motion moment: the hero settles in on load. */
+/* The single motion moment: the intro settles in on load. */
 @keyframes hero-in {
   from {
     opacity: 0;

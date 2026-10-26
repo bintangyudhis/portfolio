@@ -6,7 +6,7 @@ import { t, type Locale } from "@/lib/i18n";
 type State = "idle" | "sending" | "sent" | "error";
 
 const inputCls =
-  "w-full border border-coal-line bg-coal-soft px-4 py-3 text-paper placeholder:text-coal-faded/70 focus:border-flame focus:outline-none";
+  "w-full border border-band-line bg-band-soft px-4 py-3 text-band-ink placeholder:text-band-faded/70 focus:border-flame focus:outline-none";
 
 export default function ContactForm({ locale }: { locale: Locale }) {
   const [state, setState] = useState<State>("idle");
@@ -45,36 +45,36 @@ export default function ContactForm({ locale }: { locale: Locale }) {
 
   if (state === "sent") {
     return (
-      <p className="border border-coal-line bg-coal-soft px-5 py-4 leading-relaxed text-paper">
+      <p className="border border-band-line bg-band-soft px-5 py-4 leading-relaxed text-band-ink">
         {t("formSent", locale)}
       </p>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="cf-name" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+          <label htmlFor="cf-name" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-band-faded uppercase">
             {t("formName", locale)}
           </label>
           <input id="cf-name" name="name" required maxLength={80} className={inputCls} autoComplete="name" />
         </div>
         <div>
-          <label htmlFor="cf-email" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+          <label htmlFor="cf-email" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-band-faded uppercase">
             {t("formEmail", locale)}
           </label>
           <input id="cf-email" name="email" type="email" required maxLength={120} className={inputCls} autoComplete="email" />
         </div>
       </div>
       <div>
-        <label htmlFor="cf-subject" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+        <label htmlFor="cf-subject" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-band-faded uppercase">
           {t("formSubject", locale)}
         </label>
         <input id="cf-subject" name="subject" required maxLength={120} className={inputCls} />
       </div>
       <div>
-        <label htmlFor="cf-message" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+        <label htmlFor="cf-message" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-band-faded uppercase">
           {t("formMessage", locale)}
         </label>
         <textarea id="cf-message" name="message" required maxLength={2000} rows={5} className={`${inputCls} resize-y`} />
@@ -89,7 +89,7 @@ export default function ContactForm({ locale }: { locale: Locale }) {
       </div>
 
       {state === "error" && (
-        <p className="border border-flame/60 bg-coal-soft px-4 py-3 text-sm text-paper">
+        <p className="border border-flame/60 bg-band-soft px-4 py-3 text-sm text-band-ink">
           {t("formError", locale)}
         </p>
       )}
@@ -97,7 +97,7 @@ export default function ContactForm({ locale }: { locale: Locale }) {
       <button
         type="submit"
         disabled={state === "sending"}
-        className="bg-flame px-6 py-3 text-sm font-semibold whitespace-nowrap text-paper transition-colors hover:bg-paper hover:text-ink disabled:cursor-wait disabled:opacity-60"
+        className="bg-flame px-6 py-3 text-sm font-semibold whitespace-nowrap text-band-ink transition-colors hover:bg-band-ink hover:text-band disabled:cursor-wait disabled:opacity-60"
       >
         {state === "sending" ? t("formSending", locale) : t("formSend", locale)}
       </button>
