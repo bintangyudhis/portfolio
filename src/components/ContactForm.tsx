@@ -1,159 +1,105 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { t, type Locale } from "@/lib/i18n";
 
-const LIMITS = { name: 80, email: 120, subject: 120, message: 2000 };
+type State = "idle" | "sending" | "sent" | "error";
 
-type Status = "idle" | "sending" | "sent" | "error";
+const inputCls =
+  "w-full border border-coal-line bg-coal-soft px-4 py-3 text-paper placeholder:text-coal-faded/70 focus:border-flame focus:outline-none";
 
-export default function ContactForm() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
-  const loadedAt = useRef(Date.now());
-  const honeypot = useRef<HTMLInputElement>(null);
+export default function ContactForm({ locale }: { locale: Locale }) {
+  const [state, setState] = useState<State>("idle");
+  const mountedAt = useRef(0);
 
-  const update =
-    (key: keyof typeof form) =>
-    (
-      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-      setForm((f) => ({ ...f, [key]: e.target.value.slice(0, LIMITS[key]) }));
-    };
+  useEffect(() => {
+    mountedAt.current = Date.now();
+  }, []);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus("sending");
-    setError("");
-
+    if (state === "sending") return;
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    setState("sending");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...form,
-          website: honeypot.current?.value ?? "", // honeypot
-          ts: loadedAt.current, // time-trap
+          name: data.get("name"),
+          email: data.get("email"),
+          subject: data.get("subject"),
+          message: data.get("message"),
+          website: data.get("website"), // honeypot
+          ts: mountedAt.current,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to send message.");
-      setStatus("sent");
-      setForm({ name: "", email: "", subject: "", message: "" });
-    } catch (err) {
-      setStatus("error");
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      if (!res.ok) throw new Error("send failed");
+      setState("sent");
+      form.reset();
+    } catch {
+      setState("error");
     }
   }
 
-  if (status === "sent") {
+  if (state === "sent") {
     return (
-      <div className="glass rounded-2xl p-8 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-mint-400/15">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" strokeWidth="2.5">
-            <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <h3 className="font-display text-xl font-bold text-white">Message sent!</h3>
-        <p className="mt-2 text-sm text-slate-400">
-          Thanks for reaching out — I&apos;ll get back to you as soon as I can.
-        </p>
-        <button
-          onClick={() => setStatus("idle")}
-          className="mt-5 text-sm font-medium text-accent-300 hover:text-accent-400"
-        >
-          Send another message
-        </button>
-      </div>
+      <p className="border border-coal-line bg-coal-soft px-5 py-4 leading-relaxed text-paper">
+        {t("formSent", locale)}
+      </p>
     );
   }
 
-  const inputCls =
-    "w-full rounded-xl border border-white/10 bg-ink-800/70 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-accent-500/60 focus:ring-2 focus:ring-accent-600/20";
-
   return (
-    <form onSubmit={onSubmit} className="glass space-y-4 rounded-2xl p-6 md:p-8">
-      {/* Honeypot — invisible to humans, bots fill it */}
-      <input
-        ref={honeypot}
-        type="text"
-        name="website"
-        tabIndex={-1}
-        autoComplete="off"
-        className="hidden"
-        aria-hidden="true"
-      />
-
-      <div className="grid gap-4 md:grid-cols-2">
+    <form onSubmit={onSubmit} className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-300">
-            Name <span className="text-slate-500">({form.name.length}/{LIMITS.name})</span>
+          <label htmlFor="cf-name" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+            {t("formName", locale)}
           </label>
-          <input
-            className={inputCls}
-            placeholder="Your name"
-            value={form.name}
-            onChange={update("name")}
-            maxLength={LIMITS.name}
-            required
-          />
+          <input id="cf-name" name="name" required maxLength={80} className={inputCls} autoComplete="name" />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-300">
-            Email <span className="text-slate-500">({form.email.length}/{LIMITS.email})</span>
+          <label htmlFor="cf-email" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+            {t("formEmail", locale)}
           </label>
-          <input
-            type="email"
-            className={inputCls}
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={update("email")}
-            maxLength={LIMITS.email}
-            required
-          />
+          <input id="cf-email" name="email" type="email" required maxLength={120} className={inputCls} autoComplete="email" />
         </div>
       </div>
-
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-300">
-          Subject <span className="text-slate-500">({form.subject.length}/{LIMITS.subject})</span>
+        <label htmlFor="cf-subject" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+          {t("formSubject", locale)}
         </label>
-        <input
-          className={inputCls}
-          placeholder="What is this about?"
-          value={form.subject}
-          onChange={update("subject")}
-          maxLength={LIMITS.subject}
-          required
-        />
+        <input id="cf-subject" name="subject" required maxLength={120} className={inputCls} />
+      </div>
+      <div>
+        <label htmlFor="cf-message" className="mb-1.5 block text-xs font-semibold tracking-[0.08em] text-coal-faded uppercase">
+          {t("formMessage", locale)}
+        </label>
+        <textarea id="cf-message" name="message" required maxLength={2000} rows={5} className={`${inputCls} resize-y`} />
       </div>
 
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-300">
-          Message <span className="text-slate-500">({form.message.length}/{LIMITS.message})</span>
+      {/* Honeypot — humans never see or fill this. */}
+      <div className="hidden" aria-hidden="true">
+        <label>
+          Website
+          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
-        <textarea
-          className={`${inputCls} min-h-[140px] resize-y`}
-          placeholder="Tell me about your project, opportunity, or just say hi…"
-          value={form.message}
-          onChange={update("message")}
-          maxLength={LIMITS.message}
-          required
-        />
       </div>
 
-      {status === "error" && (
-        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-          {error}
+      {state === "error" && (
+        <p className="border border-flame/60 bg-coal-soft px-4 py-3 text-sm text-paper">
+          {t("formError", locale)}
         </p>
       )}
 
       <button
         type="submit"
-        disabled={status === "sending"}
-        className="w-full rounded-xl bg-accent-600 py-3.5 text-sm font-semibold text-white transition hover:bg-accent-500 disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={state === "sending"}
+        className="bg-flame px-6 py-3 text-sm font-semibold whitespace-nowrap text-paper transition-colors hover:bg-paper hover:text-ink disabled:cursor-wait disabled:opacity-60"
       >
-        {status === "sending" ? "Sending…" : "Send Message"}
+        {state === "sending" ? t("formSending", locale) : t("formSend", locale)}
       </button>
     </form>
   );

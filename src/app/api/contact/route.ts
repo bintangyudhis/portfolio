@@ -1,20 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addMessage, checkRateLimit, newId } from "@/lib/store";
-import { ContactMessage } from "@/lib/types";
+import { insertMessage } from "@/lib/db";
 
-// Anti-spam layers:
+// Anti-spam layers (kept from the previous implementation):
 // 1. Honeypot field (bots fill it, humans don't see it)
 // 2. Time-trap (form submitted too fast = bot)
-// 3. Rate limit: max 5 messages / hour / IP
+// 3. Rate limit: max 5 messages / hour / IP (in-memory, per instance)
 // 4. Strict character limits + email format validation
-// 5. HTML is escaped on render (whitespace-pre-wrap, no dangerouslySetInnerHTML)
+// Messages are stored in the Supabase table portfolio_messages.
 
 const LIMITS = { name: 80, email: 120, subject: 120, message: 2000 };
 const MIN_SUBMIT_MS = 3000;
 const RATE_MAX = 5;
-const RATE_WINDOW_SEC = 3600;
+const RATE_WINDOW_MS = 3600_000;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const hits = new Map<string, { count: number; reset: number }>();
+
+function rateAllowed(ip: string): boolean {
+  const now = Date.now();
+  const rec = hits.get(ip);
+  if (!rec || rec.reset < now) {
+    hits.set(ip, { count: 1, reset: now + RATE_WINDOW_MS });
+    return true;
+  }
+  rec.count += 1;
+  return rec.count <= RATE_MAX;
+}
 
 function clientIp(req: NextRequest): string {
   const fwd = req.headers.get("x-forwarded-for");
@@ -30,9 +42,9 @@ export async function POST(req: NextRequest) {
 
   const { name, email, subject, message, website, ts } = body as Record<string, unknown>;
 
-  // 1. Honeypot
+  // 1. Honeypot — pretend success, drop silently.
   if (typeof website === "string" && website.trim() !== "") {
-    return NextResponse.json({ ok: true }); // pretend success, drop silently
+    return NextResponse.json({ ok: true });
   }
 
   // 2. Time-trap
@@ -67,24 +79,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 3. Rate limit (checked after validation so bots probing limits don't burn quota)
+  // 3. Rate limit (after validation so probes don't burn quota)
   const ip = clientIp(req);
-  const { allowed } = await checkRateLimit(ip, RATE_MAX, RATE_WINDOW_SEC);
-  if (!allowed) {
+  if (!rateAllowed(ip)) {
     return NextResponse.json(
       { error: "You've sent too many messages recently. Please try again later." },
       { status: 429 }
     );
   }
 
-  const msg: ContactMessage = {
-    ...clean,
-    id: newId("msg"),
-    ip,
-    createdAt: Date.now(),
-    read: false,
-  };
-  await addMessage(msg);
+  const stored = await insertMessage({ ...clean, ip });
+  if (!stored) {
+    return NextResponse.json(
+      { error: "Message storage is unavailable right now. Please email me directly." },
+      { status: 503 }
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }

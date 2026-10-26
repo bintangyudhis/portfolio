@@ -1,33 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAdmin } from "@/lib/auth";
-import { getMessages, saveMessages } from "@/lib/store";
+import { adminDb, badRequest, dbError } from "@/lib/admin-route";
 
-function unauthorized() {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+function parseId(raw: string): number | null {
+  const n = Number(raw);
+  return Number.isInteger(n) && n > 0 ? n : null;
 }
 
-type Ctx = { params: Promise<{ id: string }> };
-
-export async function PATCH(req: NextRequest, { params }: Ctx) {
-  if (!(await isAdmin())) return unauthorized();
-  const { id } = await params;
-  const { read } = await req.json().catch(() => ({}));
-  const list = await getMessages();
-  const msg = list.find((m) => m.id === id);
-  if (!msg) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  msg.read = read === true;
-  await saveMessages(list);
-  return NextResponse.json({ messages: list });
-}
-
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
-  if (!(await isAdmin())) return unauthorized();
-  const { id } = await params;
-  const list = await getMessages();
-  const filtered = list.filter((m) => m.id !== id);
-  if (filtered.length === list.length) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const { sb, error } = await adminDb();
+  if (error) return error;
+  const id = parseId((await ctx.params).id);
+  if (id === null) return badRequest("ID pesan tidak valid.");
+  const body = await req.json().catch(() => null);
+  const isRead =
+    body && typeof body === "object" ? (body as Record<string, unknown>).isRead : undefined;
+  if (typeof isRead !== "boolean") return badRequest("Field isRead (boolean) wajib diisi.");
+  const { data, error: qError } = await sb
+    .from("portfolio_messages")
+    .update({ is_read: isRead })
+    .eq("id", id)
+    .select("id");
+  if (qError) return dbError(qError.message);
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: "Pesan tidak ditemukan." }, { status: 404 });
   }
-  await saveMessages(filtered);
-  return NextResponse.json({ messages: filtered });
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const { sb, error } = await adminDb();
+  if (error) return error;
+  const id = parseId((await ctx.params).id);
+  if (id === null) return badRequest("ID pesan tidak valid.");
+  const { data, error: qError } = await sb
+    .from("portfolio_messages")
+    .delete()
+    .eq("id", id)
+    .select("id");
+  if (qError) return dbError(qError.message);
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: "Pesan tidak ditemukan." }, { status: 404 });
+  }
+  return NextResponse.json({ ok: true });
 }

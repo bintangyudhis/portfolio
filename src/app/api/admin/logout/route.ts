@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { clearAdminSession, SESSION_COOKIE } from "@/lib/auth";
+import { ADMIN_COOKIE } from "@/lib/admin-session";
 
 export async function POST() {
-  await clearAdminSession();
-  const jar = await cookies();
-  jar.delete(SESSION_COOKIE);
-  return NextResponse.json({ ok: true });
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set(ADMIN_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  return res;
 }

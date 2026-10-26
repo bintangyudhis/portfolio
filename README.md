@@ -1,15 +1,27 @@
 # Portfolio — Bintang Yudhistira
 
-Personal portfolio website built with **Next.js 16**, **Tailwind CSS v4**, and **React 19**.
-Live at [bintangyudhis.my.id](https://bintangyudhis.my.id).
+Personal portfolio of Bintang Yudhistira — a single-page editorial site in
+three languages (Indonesian / English / Japanese), built with **Next.js 16**,
+**Tailwind CSS v4**, and **React 19**. Live at
+[bintangyudhis.my.id](https://bintangyudhis.my.id).
 
-## Features
+Design research, curated data sources, and the redesign report live in
+[REDESIGN-NOTES.md](REDESIGN-NOTES.md).
 
-- Modern dark-themed design with animated hero, scroll reveals, and typewriter roles
-- Pages: Home, Projects, Experience, Contact
-- **Built-in CMS** at `/admin` — add/edit/delete projects & work experience, read contact-form messages (inbox)
-- **Contact form with anti-spam**: character limits, honeypot field, time-trap, and rate limiting (5 msgs/hour/IP)
-- Data persists via **Vercel KV** (falls back to seed data + in-memory store for local dev)
+## How it works
+
+- **One page**: hero, about, experience timeline, project index, skills, and
+  a contact section with a form (honeypot + time-trap + rate limit anti-spam).
+- **Content from Supabase**: profile, experience, projects, and skills are
+  stored as `portfolio_*` tables in the shared `dompetku` Supabase project
+  and read server-side via `pg` (`src/lib/db.ts`). If the database is
+  unreachable, the site renders the identical curated content from
+  `src/lib/content.ts` — it never renders empty.
+- **Three languages**: the `ID | EN | JP` toggle writes a `pb-lang` cookie
+  and re-renders; UI copy lives in `src/lib/i18n.ts`, content translations
+  in `src/lib/content.ts` / the database jsonb columns.
+- The old multi-page KV CMS (`/admin`) was retired in the October 2026
+  redesign; content is now edited in `src/lib/content.ts` + `db:setup`.
 
 ## Local development
 
@@ -18,34 +30,21 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Admin panel: http://localhost:3000/admin
+Open http://localhost:3000 — no environment needed; the site falls back to
+the built-in content.
 
-## Environment variables
+## Database setup
 
-Copy `.env.example` to `.env.local` and fill in:
+1. Put the `dompetku` project's `DATABASE_URL` (same value as in the Vercel
+   env of dompetku-web / pendekin) into `.env.local` — see `.env.example`.
+2. Run:
 
-| Variable | Description |
-|---|---|
-| `ADMIN_PASSWORD` | Password for the `/admin` CMS login (**required**, pick a strong one) |
-| `KV_REST_API_URL` | Vercel KV REST URL (auto-filled by Vercel when you add a KV database) |
-| `KV_REST_API_TOKEN` | Vercel KV REST token (auto-filled by Vercel) |
+```bash
+npm run db:setup
+```
 
-Without KV variables the site still works: it shows the built-in seed projects/experience and stores CMS changes in memory (lost on restart).
-
-## Deploy to Vercel
-
-1. Push this repo to GitHub.
-2. On [vercel.com](https://vercel.com) → **Add New Project** → import the repo → **Deploy**.
-3. **Storage** tab → **Create Database** → **KV** → connect it to the project (this fills `KV_REST_API_URL` / `KV_REST_API_TOKEN` automatically).
-4. **Settings → Environment Variables** → add `ADMIN_PASSWORD` (a strong password only you know).
-5. Redeploy so the new env var takes effect.
-
-## Connect the custom domain (bintangyudhis.my.id)
-
-1. Vercel project → **Settings → Domains** → add `bintangyudhis.my.id` (and optionally `www.bintangyudhis.my.id`). Vercel will show the required DNS records.
-2. In **Cloudflare** (DNS is managed there): add an **A record**:
-   - Name: `@`, Content: `76.76.21.21`, Proxy: **DNS only** (grey cloud) for the apex domain — or follow Vercel's exact instructions if they differ.
-   - For `www`: add a **CNAME** `www` → `cname.vercel-dns.com`.
-3. Wait a few minutes for DNS propagation, then open https://bintangyudhis.my.id. Vercel provisions the SSL certificate automatically.
-
-> Note: the apex A record should be **DNS only** (not proxied) unless Vercel instructs otherwise; `www` CNAME can stay proxied.
+This applies `supabase/migrations/0001_portfolio_tables.sql` (idempotent,
+RLS enabled, public read-only) and upserts the curated content.
+3. Add the same `DATABASE_URL` to this project's Vercel environment
+   variables and redeploy so the live site reads from the database and the
+   contact form can store messages in `portfolio_messages`.

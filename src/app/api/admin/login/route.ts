@@ -1,26 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createSession } from "@/lib/store";
-import { checkPassword, SESSION_COOKIE } from "@/lib/auth";
-import { randomBytes } from "crypto";
+import {
+  ADMIN_COOKIE,
+  adminLoginConfigured,
+  adminPasswordMatches,
+  createSessionToken,
+  sessionCookieOptions,
+} from "@/lib/admin-session";
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json().catch(() => ({ password: "" }));
-  if (typeof password !== "string" || !checkPassword(password)) {
-    return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+  if (!adminLoginConfigured()) {
+    return NextResponse.json(
+      { error: "Login admin belum dikonfigurasi (env ADMIN_PASSWORD belum dipasang)." },
+      { status: 503 }
+    );
   }
-
-  const token = randomBytes(32).toString("hex");
-  await createSession(token);
-
-  const jar = await cookies();
-  jar.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-
-  return NextResponse.json({ ok: true });
+  const body = await req.json().catch(() => null);
+  const password =
+    body && typeof body === "object" ? (body as Record<string, unknown>).password : undefined;
+  if (typeof password !== "string" || !adminPasswordMatches(password)) {
+    return NextResponse.json({ error: "Kata sandi salah." }, { status: 401 });
+  }
+  const token = createSessionToken();
+  if (!token) {
+    return NextResponse.json({ error: "Sesi tidak dapat dibuat." }, { status: 500 });
+  }
+  const res = NextResponse.json({ ok: true });
+  res.cookies.set(ADMIN_COOKIE, token, sessionCookieOptions);
+  return res;
 }
