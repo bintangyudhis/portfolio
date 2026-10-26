@@ -45,6 +45,8 @@ export interface ProfileContent {
   photoUrl?: string;
   /** CV file URL (PDF uploaded via the admin CMS; column cv_url). */
   cvUrl?: string;
+  /** English CV file URL (column cv_url_en). */
+  cvUrlEn?: string;
 }
 
 export interface ExperienceItem {

@@ -276,22 +276,62 @@ async function fetchCvUrl(): Promise<string | undefined> {
   return undefined;
 }
 
+async function fetchCvUrlEn(): Promise<string | undefined> {
+  const sb = getAnonClient();
+  if (sb) {
+    try {
+      const { data, error } = await sb
+        .from("portfolio_profile")
+        .select("cv_url_en")
+        .eq("id", 1)
+        .maybeSingle();
+      const value = (data as Row | null)?.cv_url_en;
+      if (!error && typeof value === "string" && value) return value;
+    } catch {
+      // Column not there yet: no English CV.
+    }
+  }
+  const p = getPool();
+  if (p) {
+    try {
+      const res = await p.query(
+        "select cv_url_en from public.portfolio_profile where id = 1"
+      );
+      const value = (res.rows[0] as Row | undefined)?.cv_url_en;
+      if (typeof value === "string" && value) return value;
+    } catch {
+      // Column not there yet: no English CV.
+    }
+  }
+  return undefined;
+}
+
 export async function getPortfolioContent(): Promise<PortfolioContent> {
   if (cache && Date.now() - cache.at < CACHE_MS) {
     return cache.data ?? fallbackContent;
   }
   const data = (await fetchFromRest()) ?? (await fetchFromPg());
   const cvUrl = await fetchCvUrl();
+  const cvUrlEn = await fetchCvUrlEn();
   if (data) {
     if (cvUrl) data.profile.cvUrl = cvUrl;
+    if (cvUrlEn) data.profile.cvUrlEn = cvUrlEn;
     cache = { at: Date.now(), data };
     return data;
   }
   cache = { at: Date.now(), data };
-  // Never mutate the shared fallback object when attaching the CV URL.
-  return cvUrl
-    ? { ...fallbackContent, profile: { ...fallbackContent.profile, cvUrl } }
-    : fallbackContent;
+  // Never mutate the shared fallback object when attaching the CV URLs.
+  if (cvUrl || cvUrlEn) {
+    return {
+      ...fallbackContent,
+      profile: {
+        ...fallbackContent.profile,
+        ...(cvUrl ? { cvUrl } : {}),
+        ...(cvUrlEn ? { cvUrlEn } : {}),
+      },
+    };
+  }
+  return fallbackContent;
 }
 
 export interface StoredMessage {

@@ -67,6 +67,7 @@ export async function PUT(req: NextRequest) {
     discordUrl: optString(body.discordUrl, 500) ?? "",
     photoUrl: optString(body.photoUrl, 1000) ?? undefined,
     cvUrl: optString(body.cvUrl, 1000) ?? undefined,
+    cvUrlEn: optString(body.cvUrlEn, 1000) ?? undefined,
     email2: optString(body.email2, 200) ?? undefined,
   };
   if (!profile.githubUrl || !profile.linkedinUrl) {

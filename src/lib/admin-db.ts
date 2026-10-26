@@ -50,6 +50,7 @@ export function rowToProfile(r: Row): ProfileContent {
     discordUrl: r.discord_url ?? "",
     photoUrl: r.photo_url ?? undefined,
     cvUrl: r.cv_url ?? undefined,
+    cvUrlEn: r.cv_url_en ?? undefined,
   };
 }
 
@@ -73,6 +74,7 @@ export function profileToRow(p: ProfileContent): Row {
     languages: p.languages,
     photo_url: p.photoUrl ?? null,
     cv_url: p.cvUrl ?? null,
+    cv_url_en: p.cvUrlEn ?? null,
     updated_at: new Date().toISOString(),
   };
 }

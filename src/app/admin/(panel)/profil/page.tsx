@@ -146,9 +146,15 @@ export default function ProfilPage() {
             onChange={(url) => set("photoUrl", url || undefined)}
           />
           <CvUpload
-            label="CV (PDF)"
+            label="CV Bahasa Indonesia (PDF)"
             value={profile.cvUrl ?? ""}
             onChange={(url) => set("cvUrl", url || undefined)}
+          />
+          <CvUpload
+            label="CV Bahasa Inggris (PDF)"
+            value={profile.cvUrlEn ?? ""}
+            onChange={(url) => set("cvUrlEn", url || undefined)}
+            purpose="cv-en"
           />
         </section>
 

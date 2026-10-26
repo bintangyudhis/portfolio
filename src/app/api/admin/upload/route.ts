@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
 
   // CV uploads are special-cased: PDF only, larger cap, stored under cv/.
   // Everything else keeps the original image rules.
-  const isCv = form?.get("purpose") === "cv";
+  const purpose = form?.get("purpose");
+  const isCv = purpose === "cv" || purpose === "cv-en";
   let path: string;
   if (isCv) {
     if (file.type !== "application/pdf") {

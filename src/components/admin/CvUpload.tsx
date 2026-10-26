@@ -11,10 +11,12 @@ export default function CvUpload({
   label,
   value,
   onChange,
+  purpose = "cv",
 }: {
   label: string;
   value: string;
   onChange: (url: string) => void;
+  purpose?: string;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -26,7 +28,7 @@ export default function CvUpload({
     try {
       const form = new FormData();
       form.append("file", file);
-      form.append("purpose", "cv");
+      form.append("purpose", purpose);
       const res = await fetch("/api/admin/upload", { method: "POST", body: form });
       const data: unknown = await res.json().catch(() => null);
       if (!res.ok) {

@@ -71,7 +71,19 @@ export default function Hero({
                 className="inline-flex items-center gap-2 rounded-xl border border-line bg-panel px-6 py-3.5 font-semibold text-ink transition-colors hover:border-flame hover:text-flame"
               >
                 <DocIcon className="h-5 w-5" />
-                {t("cvButton", locale)}
+                {profile.cvUrlEn ? "Curriculum Vitae (Indonesia)" : t("cvButton", locale)}
+                <ArrowUpRightIcon className="h-4 w-4 text-faded" />
+              </a>
+            )}
+            {profile.cvUrlEn && (
+              <a
+                href={profile.cvUrlEn}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-line bg-panel px-6 py-3.5 font-semibold text-ink transition-colors hover:border-flame hover:text-flame"
+              >
+                <DocIcon className="h-5 w-5" />
+                Curriculum Vitae (English)
                 <ArrowUpRightIcon className="h-4 w-4 text-faded" />
               </a>
             )}
