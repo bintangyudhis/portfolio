@@ -41,12 +41,17 @@ export default function Contact({
                 <p className="font-mono text-xs tracking-[0.08em] text-faded uppercase">
                   Email
                 </p>
-                <a
-                  href={`mailto:${profile.email}`}
-                  className="mt-1.5 block text-[clamp(1.3rem,3.4vw,1.75rem)] leading-snug font-extrabold tracking-tight break-all text-ink underline decoration-flame decoration-2 underline-offset-4 transition-colors hover:text-flame"
-                >
-                  {profile.email}
-                </a>
+                {[profile.email, profile.email2]
+                  .filter((addr): addr is string => Boolean(addr))
+                  .map((addr) => (
+                    <a
+                      key={addr}
+                      href={`mailto:${addr}`}
+                      className="mt-1.5 block text-[clamp(1.3rem,3.4vw,1.75rem)] leading-snug font-extrabold tracking-tight break-all text-ink underline decoration-flame decoration-2 underline-offset-4 transition-colors hover:text-flame"
+                    >
+                      {addr}
+                    </a>
+                  ))}
                 <p className="mt-2 text-sm text-faded">
                   {t("contactEmailHint", locale)}
                 </p>
@@ -80,7 +85,7 @@ export default function Contact({
             </div>
 
             <div className="min-w-0 md:col-span-6 md:col-start-7">
-              <ContactForm locale={locale} />
+              <ContactForm locale={locale} inboxEmail={profile.email2 ?? profile.email} />
             </div>
           </div>
         </div>

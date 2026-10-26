@@ -21,6 +21,9 @@ export default function SiteFooter({
     { label: "Instagram", href: profile.instagramUrl },
     { label: "Discord", href: profile.discordUrl },
     { label: profile.email, href: `mailto:${profile.email}` },
+    ...(profile.email2
+      ? [{ label: profile.email2, href: `mailto:${profile.email2}` }]
+      : []),
   ];
 
   return (

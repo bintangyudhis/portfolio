@@ -53,6 +53,9 @@ function mapProfile(row: Row): ProfileContent {
         ? row.languages
         : fallbackContent.profile.languages,
     email: row.email,
+    // Column email2 arrives with its own migration; until then the
+    // curated fallback address is used.
+    email2: row.email2 ?? fallbackContent.profile.email2,
     githubUrl: row.github_url,
     linkedinUrl: row.linkedin_url,
     instagramUrl: row.instagram_url ?? undefined,

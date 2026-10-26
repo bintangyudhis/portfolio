@@ -127,6 +127,37 @@ const ui = {
     en: "You have sent several messages just now. Take a short break and try again.",
     jp: "短時間に複数のメッセージが送信されています。少し待ってからお試しください。",
   },
+  formRecipient: { id: "Penerima", en: "Recipient", jp: "宛先" },
+  formMailNote: {
+    id: "Pesan ini akan terbuka langsung di aplikasi email kamu, ditujukan ke",
+    en: "This message will open directly in your email client, addressed to",
+    jp: "このメッセージはメールアプリで直接開きます。宛先はこちら",
+  },
+  formReadyTitle: {
+    id: "Pesan Siap Dikirim",
+    en: "Message Ready to Send",
+    jp: "メッセージの準備ができました",
+  },
+  formReadyText: {
+    id: "Aplikasi email kamu sudah dibuka dengan draf berikut. Tekan kirim di sana untuk menyelesaikan.",
+    en: "Your email client is opened with the following draft. Press send there to finish.",
+    jp: "メールアプリが開き、次の下書きが用意されています。送信を押して完了してください。",
+  },
+  formOpenGmail: {
+    id: "Buka di Gmail Web",
+    en: "Open in Gmail Web",
+    jp: "Gmail Webで開く",
+  },
+  formOpenClient: {
+    id: "Buka Lagi di Aplikasi Email",
+    en: "Reopen in Email Client",
+    jp: "メールアプリでもう一度開く",
+  },
+  formSendAnother: {
+    id: "Kirim Pesan Lain",
+    en: "Send Another Message",
+    jp: "別のメッセージを送る",
+  },
 
   themeToggle: { id: "Ganti tema", en: "Toggle theme", jp: "テーマを切り替える" },
 

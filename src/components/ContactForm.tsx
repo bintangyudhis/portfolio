@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { t, type Locale, type UiKey } from "@/lib/i18n";
 
-type State = "idle" | "sending" | "sent" | "error";
+type State = "idle" | "ready" | "error";
+
+interface Draft {
+  name: string;
+  email: string;
+  message: string;
+  subject: string;
+  mailtoUrl: string;
+  gmailUrl: string;
+}
 
 const inputCls =
   "w-full rounded-xl border border-line bg-paper px-4 py-3 text-ink placeholder:text-faded/60 focus:border-flame focus:outline-none";
@@ -12,88 +21,108 @@ const labelCls =
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function mapServerError(status: number, serverError: string): UiKey {
-  if (status === 429) return "formErrRate";
-  if (serverError.includes("too short") && serverError.includes("message")) return "formErrMessage";
-  if (serverError.includes("valid email")) return "formErrEmail";
-  if (serverError.includes("your name")) return "formErrName";
-  if (serverError.includes("a subject")) return "formErrSubject";
-  if (serverError.includes("take a moment")) return "formErrFast";
-  return "formError";
-}
-
-export default function ContactForm({ locale }: { locale: Locale }) {
+/**
+ * Contact form following the reference site's system: nothing is stored
+ * on the server. Submitting composes an email draft in the visitor's own
+ * email client (mailto) addressed to the inbox email, with Gmail Web as
+ * an alternative. The visitor presses send in their mail app.
+ */
+export default function ContactForm({
+  locale,
+  inboxEmail,
+}: {
+  locale: Locale;
+  inboxEmail: string;
+}) {
   const [state, setState] = useState<State>("idle");
   const [errorKey, setErrorKey] = useState<UiKey>("formError");
-  const mountedAt = useRef(0);
+  const [draft, setDraft] = useState<Draft | null>(null);
 
-  useEffect(() => {
-    mountedAt.current = Date.now();
-  }, []);
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (state === "sending") return;
-    const form = e.currentTarget;
-    const data = new FormData(form);
-
-    // Mirror the server rules so the visitor learns the exact problem
-    // here, in their language, instead of a generic failure.
+    const data = new FormData(e.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
-    const subject = String(data.get("subject") ?? "").trim();
     const message = String(data.get("message") ?? "").trim();
+
     const localError: UiKey | null =
       name.length < 2
         ? "formErrName"
         : !EMAIL_RE.test(email)
           ? "formErrEmail"
-          : subject.length < 3
-            ? "formErrSubject"
-            : message.length < 10
-              ? "formErrMessage"
-              : null;
+          : message.length < 10
+            ? "formErrMessage"
+            : null;
     if (localError) {
       setErrorKey(localError);
       setState("error");
       return;
     }
 
-    setState("sending");
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: data.get("name"),
-          email: data.get("email"),
-          subject: data.get("subject"),
-          message: data.get("message"),
-          website: data.get("website"), // honeypot
-          ts: mountedAt.current,
-        }),
-      });
-      if (!res.ok) {
-        const payload = (await res.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        setErrorKey(mapServerError(res.status, payload?.error ?? ""));
-        setState("error");
-        return;
-      }
-      setState("sent");
-      form.reset();
-    } catch {
-      setErrorKey("formError");
-      setState("error");
-    }
+    const subject = `Portfolio Message from ${name}`;
+    const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+    const mailtoUrl = `mailto:${inboxEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(inboxEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    setDraft({ name, email, message, subject, mailtoUrl, gmailUrl });
+    setState("ready");
+    window.location.href = mailtoUrl;
   }
 
-  if (state === "sent") {
+  if (state === "ready" && draft) {
+    const rows: Array<[string, string]> = [
+      [t("formName", locale), draft.name],
+      [t("formEmail", locale), draft.email],
+      [t("formRecipient", locale), inboxEmail],
+      [t("formMessage", locale), draft.message],
+    ];
     return (
-      <p className="rounded-2xl bg-inset px-5 py-4 leading-relaxed text-ink">
-        {t("formSent", locale)}
-      </p>
+      <div className="rounded-2xl bg-inset px-5 py-5">
+        <p className="text-lg font-extrabold tracking-tight text-ink">
+          {t("formReadyTitle", locale)}
+        </p>
+        <p className="mt-1.5 leading-relaxed text-faded">
+          {t("formReadyText", locale)}
+        </p>
+        <dl className="mt-4 space-y-2.5">
+          {rows.map(([label, value]) => (
+            <div key={label} className="flex gap-3 text-sm">
+              <dt className="w-20 shrink-0 font-mono text-xs tracking-[0.08em] text-faded uppercase pt-0.5">
+                {label}
+              </dt>
+              <dd className="min-w-0 font-medium break-words whitespace-pre-wrap text-ink">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <a
+            href={draft.gmailUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-xl bg-flame px-5 py-3 text-sm font-semibold whitespace-nowrap text-on-accent transition-opacity hover:opacity-90"
+          >
+            {t("formOpenGmail", locale)}
+          </a>
+          <a
+            href={draft.mailtoUrl}
+            className="rounded-xl border border-line px-5 py-3 text-sm font-semibold whitespace-nowrap text-ink transition-colors hover:border-flame hover:text-flame"
+          >
+            {t("formOpenClient", locale)}
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              setDraft(null);
+              setState("idle");
+            }}
+            className="rounded-xl px-4 py-3 text-sm font-medium whitespace-nowrap text-faded transition-colors hover:text-ink"
+          >
+            {t("formSendAnother", locale)}
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -114,24 +143,10 @@ export default function ContactForm({ locale }: { locale: Locale }) {
         </div>
       </div>
       <div>
-        <label htmlFor="cf-subject" className={labelCls}>
-          {t("formSubject", locale)}
-        </label>
-        <input id="cf-subject" name="subject" required maxLength={120} className={inputCls} />
-      </div>
-      <div>
         <label htmlFor="cf-message" className={labelCls}>
           {t("formMessage", locale)}
         </label>
         <textarea id="cf-message" name="message" required maxLength={2000} rows={5} className={`${inputCls} resize-y`} />
-      </div>
-
-      {/* Honeypot: humans never see or fill this. */}
-      <div className="hidden" aria-hidden="true">
-        <label>
-          Website
-          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
-        </label>
       </div>
 
       {state === "error" && (
@@ -142,11 +157,14 @@ export default function ContactForm({ locale }: { locale: Locale }) {
 
       <button
         type="submit"
-        disabled={state === "sending"}
-        className="rounded-xl bg-flame px-6 py-3.5 text-sm font-semibold whitespace-nowrap text-on-accent transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
+        className="rounded-xl bg-flame px-6 py-3.5 text-sm font-semibold whitespace-nowrap text-on-accent transition-opacity hover:opacity-90"
       >
-        {state === "sending" ? t("formSending", locale) : t("formSend", locale)}
+        {t("formSend", locale)}
       </button>
+      <p className="text-sm text-faded">
+        {t("formMailNote", locale)}{" "}
+        <span className="font-medium break-all text-ink/90">{inboxEmail}</span>
+      </p>
     </form>
   );
 }

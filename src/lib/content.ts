@@ -35,6 +35,8 @@ export interface ProfileContent {
   focus: FocusArea[];
   languages: LanguageItem[];
   email: string;
+  /** Second public email; the contact form delivers here. */
+  email2?: string;
   githubUrl: string;
   linkedinUrl: string;
   instagramUrl: string;
@@ -179,6 +181,7 @@ export const fallbackContent: PortfolioContent = {
       },
     ],
     email: "bintangyudhistira@student.telkomuniversity.ac.id",
+    email2: "bintangyudhistira36@gmail.com",
     githubUrl: "https://github.com/bintangyudhis",
     linkedinUrl: "https://www.linkedin.com/in/bintang-yudhistira-278448289/",
     instagramUrl: "https://instagram.com/yudhis_gaiden",

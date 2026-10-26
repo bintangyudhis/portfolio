@@ -114,6 +114,12 @@ export default function ProfilPage() {
               onChange={(v) => set("email", v)}
             />
             <TextField
+              label="Email kedua (tujuan formulir kontak)"
+              type="email"
+              value={profile.email2 ?? ""}
+              onChange={(v) => set("email2", v)}
+            />
+            <TextField
               label="URL GitHub"
               value={profile.githubUrl}
               onChange={(v) => set("githubUrl", v)}
