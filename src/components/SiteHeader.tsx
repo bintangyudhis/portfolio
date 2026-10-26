@@ -53,9 +53,10 @@ export default function SiteHeader({
           </div>
         </div>
 
-        {/* Mobile: the nav gets its own row — links never wrap mid-label. */}
+        {/* Mobile: the nav gets its own row and wraps as a container —
+            each link stays on one line, nothing is cut off at 320px. */}
         <nav
-          className="flex items-center gap-x-5 overflow-x-auto pb-3 [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
+          className="flex flex-wrap items-center gap-x-5 gap-y-1 pb-3 md:hidden"
           aria-label="Utama"
         >
           {links.map((l) => (

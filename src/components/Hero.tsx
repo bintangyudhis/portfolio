@@ -56,8 +56,11 @@ export default function Hero({
                 LinkedIn
               </a>
             </li>
-            <li>
-              <a href={`mailto:${profile.email}`} className={linkCls}>
+            <li className="min-w-0">
+              <a
+                href={`mailto:${profile.email}`}
+                className={`${linkCls} break-all`}
+              >
                 {profile.email}
               </a>
             </li>

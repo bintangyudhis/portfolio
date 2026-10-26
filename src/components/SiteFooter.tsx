@@ -33,7 +33,11 @@ export default function SiteFooter({
               href={c.href}
               target={c.href.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className="py-1 text-sm whitespace-nowrap text-band-ink/85 transition-colors hover:text-flame"
+              className={`py-1 text-sm text-band-ink/85 transition-colors hover:text-flame ${
+                c.href.startsWith("mailto")
+                  ? "break-all"
+                  : "whitespace-nowrap"
+              }`}
             >
               {c.label}
             </a>
