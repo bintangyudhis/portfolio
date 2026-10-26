@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { t, type Locale } from "@/lib/i18n";
+import { t, type Locale, type UiKey } from "@/lib/i18n";
 
 type State = "idle" | "sending" | "sent" | "error";
 
@@ -10,8 +10,21 @@ const inputCls =
 const labelCls =
   "mb-1.5 block text-xs font-bold tracking-[0.08em] text-faded uppercase";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function mapServerError(status: number, serverError: string): UiKey {
+  if (status === 429) return "formErrRate";
+  if (serverError.includes("too short") && serverError.includes("message")) return "formErrMessage";
+  if (serverError.includes("valid email")) return "formErrEmail";
+  if (serverError.includes("your name")) return "formErrName";
+  if (serverError.includes("a subject")) return "formErrSubject";
+  if (serverError.includes("take a moment")) return "formErrFast";
+  return "formError";
+}
+
 export default function ContactForm({ locale }: { locale: Locale }) {
   const [state, setState] = useState<State>("idle");
+  const [errorKey, setErrorKey] = useState<UiKey>("formError");
   const mountedAt = useRef(0);
 
   useEffect(() => {
@@ -23,6 +36,29 @@ export default function ContactForm({ locale }: { locale: Locale }) {
     if (state === "sending") return;
     const form = e.currentTarget;
     const data = new FormData(form);
+
+    // Mirror the server rules so the visitor learns the exact problem
+    // here, in their language, instead of a generic failure.
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const subject = String(data.get("subject") ?? "").trim();
+    const message = String(data.get("message") ?? "").trim();
+    const localError: UiKey | null =
+      name.length < 2
+        ? "formErrName"
+        : !EMAIL_RE.test(email)
+          ? "formErrEmail"
+          : subject.length < 3
+            ? "formErrSubject"
+            : message.length < 10
+              ? "formErrMessage"
+              : null;
+    if (localError) {
+      setErrorKey(localError);
+      setState("error");
+      return;
+    }
+
     setState("sending");
     try {
       const res = await fetch("/api/contact", {
@@ -37,10 +73,18 @@ export default function ContactForm({ locale }: { locale: Locale }) {
           ts: mountedAt.current,
         }),
       });
-      if (!res.ok) throw new Error("send failed");
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setErrorKey(mapServerError(res.status, payload?.error ?? ""));
+        setState("error");
+        return;
+      }
       setState("sent");
       form.reset();
     } catch {
+      setErrorKey("formError");
       setState("error");
     }
   }
@@ -92,7 +136,7 @@ export default function ContactForm({ locale }: { locale: Locale }) {
 
       {state === "error" && (
         <p className="rounded-xl border border-flame/60 bg-inset px-4 py-3 text-sm text-ink">
-          {t("formError", locale)}
+          {t(errorKey, locale)}
         </p>
       )}
 

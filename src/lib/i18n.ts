@@ -97,6 +97,36 @@ const ui = {
     en: "The message could not be sent. Please try again in a moment, or email me directly.",
     jp: "送信できませんでした。少し待ってからもう一度お試しいただくか、直接メールでご連絡ください。",
   },
+  formErrName: {
+    id: "Isi namamu dulu ya, minimal 2 huruf.",
+    en: "Please enter your name, at least 2 characters.",
+    jp: "お名前を入力してください（2文字以上）。",
+  },
+  formErrEmail: {
+    id: "Alamat emailnya belum valid, cek lagi ya.",
+    en: "That email address does not look valid yet.",
+    jp: "メールアドレスの形式が正しくありません。",
+  },
+  formErrSubject: {
+    id: "Subjeknya terlalu pendek, minimal 3 huruf.",
+    en: "The subject is too short, at least 3 characters.",
+    jp: "件名が短すぎます（3文字以上）。",
+  },
+  formErrMessage: {
+    id: "Pesanmu terlalu pendek, tulis sedikit lebih panjang ya.",
+    en: "Your message is too short, please write a little more.",
+    jp: "メッセージが短すぎます。もう少し書いてください。",
+  },
+  formErrFast: {
+    id: "Terlalu cepat, tunggu sebentar lalu kirim lagi ya.",
+    en: "That was a bit fast. Wait a moment and send again.",
+    jp: "送信が早すぎます。少し待ってからもう一度お試しください。",
+  },
+  formErrRate: {
+    id: "Kamu sudah mengirim beberapa pesan barusan. Istirahat sebentar, lalu coba lagi.",
+    en: "You have sent several messages just now. Take a short break and try again.",
+    jp: "短時間に複数のメッセージが送信されています。少し待ってからお試しください。",
+  },
 
   themeToggle: { id: "Ganti tema", en: "Toggle theme", jp: "テーマを切り替える" },
 
