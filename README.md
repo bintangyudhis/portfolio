@@ -75,6 +75,10 @@ npm start
 
 Pemeriksaan kode memakai `npm run lint`.
 
+## Tangkapan Layar
+
+![Tampilan beranda situs portofolio.](docs/screenshot.png)
+
 ## Lisensi
 
 Proyek ini memakai lisensi MIT. Lihat berkas [LICENSE](LICENSE).
