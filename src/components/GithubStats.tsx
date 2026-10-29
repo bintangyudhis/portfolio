@@ -76,7 +76,7 @@ export default function GithubStats({
 
   return (
     <section id="github-stats" className="scroll-mt-24">
-      <div className="mx-auto w-full max-w-6xl px-5 pt-14 md:px-8 md:pt-20">
+      <div className="w-full px-5 pt-14 md:px-8 md:pt-20">
         <SectionHead
           label={t("githubLabel", locale)}
           title={t("githubStatsTitle", locale)}

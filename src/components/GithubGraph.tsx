@@ -23,6 +23,9 @@ const LEVEL_CLS = [
 
 const CELL = "h-2.5 w-2.5 rounded-[2px]";
 
+/** Graph cells stretch with the card: one flexible column per week. */
+const GCELL = "aspect-square w-full rounded-[2px]";
+
 type Cell = ContributionDay | null;
 
 export default function GithubGraph({
@@ -83,7 +86,7 @@ export default function GithubGraph({
 
   return (
     <section>
-      <div className="mx-auto w-full max-w-6xl px-5 pt-6 pb-14 md:px-8 md:pb-20">
+      <div className="w-full px-5 pt-6 pb-14 md:px-8 md:pb-20">
         <div className="rounded-3xl border border-line bg-panel p-6 shadow-card md:p-8">
           <div className="flex flex-wrap items-start gap-4">
             <div>
@@ -109,35 +112,35 @@ export default function GithubGraph({
           </div>
 
           <div className="mt-6 overflow-x-auto pb-1">
-            <div className="flex w-max gap-2">
+            <div className="flex w-full min-w-[620px] gap-2">
               <div className="flex flex-col gap-[3px] pt-[18px]">
                 {dayLabels.map((d, i) => (
                   <span
                     key={i}
-                    className="flex h-2.5 items-center text-[10px] leading-none text-faded"
+                    className="flex flex-1 items-center text-[10px] leading-none text-faded"
                   >
                     {d}
                   </span>
                 ))}
               </div>
-              <div>
-                <div className="mb-1.5 grid grid-flow-col gap-[3px]">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1.5 grid grid-flow-col gap-[3px] [grid-auto-columns:1fr]">
                   {monthLabels.map((m, i) => (
-                    <span key={i} className="w-2.5 text-[10px] whitespace-nowrap text-faded">
+                    <span key={i} className="w-full text-[10px] whitespace-nowrap text-faded">
                       {m}
                     </span>
                   ))}
                 </div>
-                <div className="grid grid-flow-col grid-rows-7 gap-[3px]">
+                <div className="grid grid-flow-col grid-rows-7 gap-[3px] [grid-auto-columns:1fr]">
                   {weeks.flatMap((col, ci) =>
                     col.map((d, ri) =>
                       d === null ? (
-                        <span key={`${ci}-${ri}`} className={CELL} />
+                        <span key={`${ci}-${ri}`} className={GCELL} />
                       ) : (
                         <span
                           key={d.date}
                           title={`${d.date}: ${d.count}`}
-                          className={`${CELL} ${LEVEL_CLS[Math.min(4, Math.max(0, d.level))]}`}
+                          className={`${GCELL} ${LEVEL_CLS[Math.min(4, Math.max(0, d.level))]}`}
                         />
                       )
                     )

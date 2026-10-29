@@ -215,7 +215,7 @@ const ui = {
     en: "Contribution History",
     jp: "コントリビューション履歴",
   },
-  statCardContributions: { id: "Kontribusi", en: "Contributions", jp: "コントリビューション" },
+  statCardContributions: { id: "Total Kontribusi", en: "Total Contributions", jp: "総コントリビューション" },
   statCardRepos: { id: "Repository", en: "Repository", jp: "リポジトリ" },
   statCardStars: { id: "Bintang", en: "Stars", jp: "スター" },
   statCardFollowers: { id: "Followers", en: "Followers", jp: "フォロワー" },
